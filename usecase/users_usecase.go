@@ -14,6 +14,7 @@ import (
 type UserUseCase interface {
 	FindByUserName(username string) (model.Users, error)
 	Register(payload req.AuthRegisterRequest) error
+	FindByPhoneNumber(phoneNumber string) (model.Users, error)
 }
 
 type userUseCase struct {
@@ -72,4 +73,12 @@ func (u *userUseCase) Register(payload req.AuthRegisterRequest) error {
 		return fmt.Errorf("failed save user: %v", err.Error())
 	}
 	return nil
+}
+
+func (u *userUseCase) FindByPhoneNumber(phoneNumber string) (model.Users, error) {
+	byPhoneNumber, err := u.repo.FindByPhoneNumber(phoneNumber)
+	if err != nil {
+		return model.Users{}, fmt.Errorf("Customer not found")
+	}
+	return byPhoneNumber, nil
 }

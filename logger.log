@@ -1,0 +1,8 @@
+time="2023-09-11T20:43:11+07:00" level=warning msg="{2023-09-11 20:38:34.68817571 +0700 WIB m=+0.005716611 4m37.255079421s 404 ::1 GET /api/v1/users/ PostmanRuntime/7.32.3}"
+time="2023-09-11T20:43:52+07:00" level=error msg="{2023-09-11 20:38:34.68817571 +0700 WIB m=+0.005716611 5m17.321655887s 500 ::1 GET /api/v1/users/91989189111 PostmanRuntime/7.32.3}"
+time="2023-09-11T20:44:37+07:00" level=warning msg="{2023-09-11 20:44:20.581904734 +0700 WIB m=+0.005786016 16.463177014s 404 ::1 GET /api/v1/users PostmanRuntime/7.32.3}"
+time="2023-09-11T21:18:31+07:00" level=warning msg="{2023-09-11 21:18:22.193699903 +0700 WIB m=+0.006479453 9.08584747s 404 ::1 GET /api/v1/users PostmanRuntime/7.32.3}"
+time="2023-09-11T21:18:36+07:00" level=warning msg="{2023-09-11 21:18:22.193699903 +0700 WIB m=+0.006479453 14.199690427s 404 ::1 GET /api/v1/users PostmanRuntime/7.32.3}"
+time="2023-09-11T21:18:41+07:00" level=warning msg="{2023-09-11 21:18:22.193699903 +0700 WIB m=+0.006479453 19.070724713s 404 ::1 GET /api/v1/users/ PostmanRuntime/7.32.3}"
+time="2023-09-11T21:19:21+07:00" level=warning msg="{2023-09-11 21:18:22.193699903 +0700 WIB m=+0.006479453 59.119892712s 404 ::1 GET /api/v1/users/ PostmanRuntime/7.32.3}"
+time="2023-09-11T21:20:23+07:00" level=info msg="{2023-09-11 21:18:22.193699903 +0700 WIB m=+0.006479453 2m0.861354554s 200 ::1 GET /api/v1/users/91989189111 PostmanRuntime/7.32.3}"

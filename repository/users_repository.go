@@ -85,6 +85,15 @@ func (u *userRepository) DeleteById(id string) error {
 }
 
 func (u *userRepository) FindByPhoneNumber(phoneNumber string) (model.Users, error) {
-	//TODO implement me
-	panic("implement me")
+	row := u.db.QueryRow("SELECT id, user_name, password FROM users WHERE phone_number = $1", phoneNumber)
+	var user model.Users
+	err := row.Scan(
+		&user.Id,
+		&user.UserName,
+		&user.Password,
+	)
+	if err != nil {
+		return model.Users{}, err
+	}
+	return user, nil
 }
