@@ -8,7 +8,11 @@ import (
 type UserRepository interface {
 	Save(user model.Users) error
 	FindByUserName(username string) (model.Users, error)
+	FindByPhoneNumber(phoneNumber string) (model.Users, error)
 	UpdatePassword(username string, newPassword string, newPasswordConfirm string) error
+	UpdateUserName(username string) error
+	FindAll() ([]model.Users, error)
+	DeleteById(id string) error
 }
 
 type userRepository struct {
@@ -63,4 +67,24 @@ func (u *userRepository) UpdatePassword(username string, newPassword string, new
 		return err
 	}
 	return nil
+}
+
+func (u *userRepository) UpdateUserName(username string) error {
+	//TODO implement me
+	panic("implement me")
+}
+
+func (u *userRepository) FindAll() ([]model.Users, error) {
+	//TODO implement me
+	panic("implement me")
+}
+
+func (u *userRepository) DeleteById(id string) error {
+	//TODO implement me
+	panic("implement me")
+}
+
+func (u *userRepository) FindByPhoneNumber(phoneNumber string) (model.Users, error) {
+	//TODO implement me
+	panic("implement me")
 }
