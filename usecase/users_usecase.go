@@ -7,17 +7,28 @@ import (
 	"Kelompok-2/dompet-online/util/common"
 	"Kelompok-2/dompet-online/util/security"
 	"fmt"
-	"github.com/go-playground/validator/v10"
 	"time"
+
+	"github.com/go-playground/validator/v10"
 )
 
 type UserUseCase interface {
 	FindByUserName(username string) (model.Users, error)
 	Register(payload req.AuthRegisterRequest) error
+	UpdateUsername(username string) error
 }
 
 type userUseCase struct {
 	repo repository.UserRepository
+}
+
+// UpdateUsername implements UserUseCase.
+func (u *userUseCase) UpdateUsername(username string) error {
+	if err := u.repo.UpdateUserName(username); err != nil {
+		return fmt.Errorf("failed update username: %v", err.Error())
+	}
+	return nil
+
 }
 
 func NewUserUseCase(repo repository.UserRepository) UserUseCase {

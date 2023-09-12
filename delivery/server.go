@@ -6,6 +6,7 @@ import (
 	"Kelompok-2/dompet-online/delivery/middleware"
 	"Kelompok-2/dompet-online/manager"
 	"fmt"
+
 	"github.com/gin-gonic/gin"
 	"github.com/sirupsen/logrus"
 )
@@ -33,6 +34,7 @@ func (s *Server) initMiddleware() {
 func (s *Server) initControllers() {
 	// Inisialisasi Controller
 	controller.NewAuthController(s.ucManager.UserUseCase(), s.ucManager.AuthUseCase(), s.engine).Route()
+
 }
 
 func NewServer() *Server {

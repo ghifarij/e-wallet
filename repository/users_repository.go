@@ -70,8 +70,12 @@ func (u *userRepository) UpdatePassword(username string, newPassword string, new
 }
 
 func (u *userRepository) UpdateUserName(username string) error {
-	//TODO implement me
-	panic("implement me")
+	_, err := u.db.Exec("UPADTE users SET username =$1", username)
+	if err != nil {
+		return err
+	}
+	return nil
+
 }
 
 func (u *userRepository) FindAll() ([]model.Users, error) {
