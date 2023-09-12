@@ -21,7 +21,7 @@ type userRepository struct {
 	db *sql.DB
 }
 
-func NewUserRepository(db *sql.DB) *userRepository {
+func NewUserRepository(db *sql.DB) UserRepository {
 	return &userRepository{
 		db: db,
 	}
@@ -119,12 +119,19 @@ func (u *userRepository) DeleteById(id string) error {
 }
 
 func (u *userRepository) FindByPhoneNumber(phoneNumber string) (model.Users, error) {
-	row := u.db.QueryRow("SELECT id, user_name, password FROM users WHERE phone_number = $1", phoneNumber)
+	row := u.db.QueryRow("SELECT id, full_name, user_name, email, phone_number, password, password_confirm, created_at, updated_at, deleted_at FROM users WHERE phone_number = $1", phoneNumber)
 	var user model.Users
 	err := row.Scan(
 		&user.Id,
+		&user.FullName,
 		&user.UserName,
+		&user.Email,
+		&user.PhoneNumber,
 		&user.Password,
+		&user.PasswordConfirm,
+		&user.CreatedAt,
+		&user.UpdatedAt,
+		&user.DeleteAt,
 	)
 	if err != nil {
 		return model.Users{}, err

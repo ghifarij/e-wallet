@@ -1,32 +1,38 @@
 package usecase
 
 import (
+	"Kelompok-2/dompet-online/exception"
 	"Kelompok-2/dompet-online/model"
 	"Kelompok-2/dompet-online/model/dto/req"
+	"Kelompok-2/dompet-online/model/dto/resp"
 	"Kelompok-2/dompet-online/repository"
 	"Kelompok-2/dompet-online/util/common"
 	"Kelompok-2/dompet-online/util/security"
 	"fmt"
-	"time"
-
 	"github.com/go-playground/validator/v10"
+	"time"
 )
 
 type UserUseCase interface {
-	FindByUserName(username string)
+	FindByUserName(username string) (model.Users, error)
 	FindAll() ([]model.Users, error)
 	Register(payload req.AuthRegisterRequest) error
 	UpdateUsername(payload req.UpdateUserNameRequest) error
 	DeleteById(id string) error
 	FindByPhoneNumber(phoneNumber string) (model.Users, error)
+	Login(payload req.AuthLoginRequest) (resp.LoginResponse, error)
+	ChangePassword(payload req.UpdatePasswordRequest) error
 }
 
 type userUseCase struct {
 	repo repository.UserRepository
 }
 
+func NewUserUseCase(repo repository.UserRepository) UserUseCase {
+	return &userUseCase{repo: repo}
+}
+
 func (u *userUseCase) DeleteById(id string) error {
-	//TODO implement me
 	user, err := u.repo.FindById(id)
 	if err != nil {
 		return err
@@ -52,12 +58,6 @@ func (u *userUseCase) UpdateUsername(payload req.UpdateUserNameRequest) error {
 	}
 	return nil
 
-}
-
-func NewUserUseCase(repo repository.UserRepository) *userUseCase {
-	return &userUseCase{
-		repo,
-	}
 }
 
 // FindByUsername implements UserUseCase.
@@ -92,10 +92,6 @@ func (u *userUseCase) Register(payload req.AuthRegisterRequest) error {
 	if err != nil {
 		return err
 	}
-	// validasi password dengan passwordConfirm
-	//if payload.Password != payload.PasswordConfirm {
-	//	return fmt.Errorf("password and password confirmation do not match")
-	//}
 
 	user := model.Users{
 		Id:              common.GenerateID(),
@@ -106,8 +102,6 @@ func (u *userUseCase) Register(payload req.AuthRegisterRequest) error {
 		Password:        hashPassword,
 		PasswordConfirm: hashPasswordConfirm,
 		CreatedAt:       time.Now(),
-		//UpdatedAt:       time.Now(),
-		//DeleteAt:        time.Time{},
 	}
 
 	err = u.repo.Save(user)
@@ -117,10 +111,84 @@ func (u *userUseCase) Register(payload req.AuthRegisterRequest) error {
 	return nil
 }
 
+// FindByPhoneNumber UserUseCase
 func (u *userUseCase) FindByPhoneNumber(phoneNumber string) (model.Users, error) {
 	byPhoneNumber, err := u.repo.FindByPhoneNumber(phoneNumber)
 	if err != nil {
-		return model.Users{}, fmt.Errorf("Customer not found")
+		return model.Users{}, exception.NewNotFoundError(err.Error())
 	}
 	return byPhoneNumber, nil
+}
+
+// Login implements UserUseCase.
+func (u *userUseCase) Login(payload req.AuthLoginRequest) (resp.LoginResponse, error) {
+	// Validasi payload menggunakan struct
+	validate := validator.New()
+	err := validate.Struct(payload)
+	if err != nil {
+		return resp.LoginResponse{}, err
+	}
+
+	// read Username di db
+	user, err := u.repo.FindByUserName(payload.UserName)
+	if err != nil {
+		return resp.LoginResponse{}, fmt.Errorf("unauthorized: invalid credential")
+	}
+
+	// Validasi Password
+	err = security.VerifyPassword(user.Password, payload.Password)
+	if err != nil {
+		return resp.LoginResponse{}, fmt.Errorf("unauthorized: invalid credential")
+	}
+
+	// Generate Token
+	token, err := security.GenerateJwtToken(user)
+	if err != nil {
+		return resp.LoginResponse{}, err
+	}
+
+	return resp.LoginResponse{
+		UserName: user.UserName,
+		Token:    token,
+	}, nil
+}
+
+// ChangePassword implements UserUseCase.
+func (u *userUseCase) ChangePassword(payload req.UpdatePasswordRequest) error {
+	// Validasi payload menggunakan struct
+	validate := validator.New()
+	err := validate.Struct(payload)
+	if err != nil {
+		return err
+	}
+
+	// read Username di db
+	user, err := u.repo.FindByUserName(payload.UserName)
+	if err != nil {
+		return err
+	}
+
+	// Validasi password saat ini
+	err = security.VerifyPassword(user.Password, payload.CurrentPassword)
+	if err != nil {
+		return fmt.Errorf("update password failed: invalid current password")
+	}
+
+	// Hash new password and password confirmation
+	hashedNewPassword, err := security.HashPassword(payload.NewPassword)
+	if err != nil {
+		return err
+	}
+
+	hashedNewPasswordConfirm, err := security.HashPassword(payload.NewPasswordConfirm)
+	if err != nil {
+		return err
+	}
+
+	// update password dan password confirm
+	err = u.repo.UpdatePassword(user.UserName, hashedNewPassword, hashedNewPasswordConfirm)
+	if err != nil {
+		return fmt.Errorf("failed save user: %v", err.Error())
+	}
+	return nil
 }

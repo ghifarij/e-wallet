@@ -33,7 +33,8 @@ func (s *Server) initMiddleware() {
 
 func (s *Server) initControllers() {
 	// Inisialisasi Controller
-	controller.NewAuthController(s.ucManager.UserUseCase(), s.ucManager.AuthUseCase(), s.engine).Route()
+	controller.NewAuthController(s.ucManager.UserUseCase(), s.engine).AuthRoute()
+	controller.NewAuthController(s.ucManager.UserUseCase(), s.engine).UsersRoute()
 
 }
 
