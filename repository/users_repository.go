@@ -71,7 +71,7 @@ func (u *userRepository) UpdatePassword(username string, newPassword string, new
 }
 
 func (u *userRepository) UpdateUserName(payload req.UpdateUserNameRequest) error {
-	_, err := u.db.Exec("UPDATE users SET username =$2 WHERE id =$1", payload.Id, payload.Username)
+	_, err := u.db.Exec("UPDATE users SET user_name =$2 WHERE id =$1", payload.Id, payload.Username)
 	if err != nil {
 		return err
 	}
