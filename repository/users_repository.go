@@ -9,18 +9,25 @@ import (
 type UserRepository interface {
 	Save(user model.Users) error
 	FindByUserName(username string) (model.Users, error)
+	FindById(id string) (model.Users, error)
 	FindByPhoneNumber(phoneNumber string) (model.Users, error)
 	UpdatePassword(username string, newPassword string, newPasswordConfirm string) error
 	UpdateUserName(payload req.UpdateUserNameRequest) error
 	FindAll() ([]model.Users, error)
 	DeleteById(id string) error
+	FindByUserId(id string) (interface{}, interface{})
 }
 
 type userRepository struct {
 	db *sql.DB
 }
 
-func NewUserRepository(db *sql.DB) UserRepository {
+func (u *userRepository) FindByUserId(id string) (interface{}, interface{}) {
+	//TODO implement me
+	panic("implement me")
+}
+
+func NewUserRepository(db *sql.DB) *userRepository {
 	return &userRepository{
 		db: db,
 	}
@@ -110,7 +117,11 @@ func (u *userRepository) FindAll() ([]model.Users, error) {
 
 func (u *userRepository) DeleteById(id string) error {
 	//TODO implement me
-	panic("implement me")
+	_, err := u.db.Exec("DELETE FROM users WHERE id = $1", id)
+	if err != nil {
+		return err
+	}
+	return nil
 }
 
 func (u *userRepository) FindByPhoneNumber(phoneNumber string) (model.Users, error) {
@@ -125,4 +136,15 @@ func (u *userRepository) FindByPhoneNumber(phoneNumber string) (model.Users, err
 		return model.Users{}, err
 	}
 	return user, nil
+}
+
+func (u *userRepository) FindById(Id string) (model.Users, error) {
+
+	row := u.db.QueryRow("SELECT id, name FROM uom WHERE id = $1", Id)
+	var users model.Users
+	err := row.Scan(&users.Id)
+	if err != nil {
+		return model.Users{}, err
+	}
+	return users, nil
 }

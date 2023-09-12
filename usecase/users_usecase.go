@@ -13,15 +13,30 @@ import (
 )
 
 type UserUseCase interface {
-	FindByUserName(username string) (model.Users, error)
+	FindByUserName(username string)
 	FindAll() ([]model.Users, error)
 	Register(payload req.AuthRegisterRequest) error
 	UpdateUsername(payload req.UpdateUserNameRequest) error
+	DeleteById(id string) error
 	FindByPhoneNumber(phoneNumber string) (model.Users, error)
 }
 
 type userUseCase struct {
 	repo repository.UserRepository
+}
+
+func (u *userUseCase) DeleteById(id string) error {
+	//TODO implement me
+	user, err := u.repo.FindById(id)
+	if err != nil {
+		return err
+	}
+
+	err = u.repo.DeleteById(user.Id)
+	if err != nil {
+		return fmt.Errorf("failed to delete users: %v", err)
+	}
+	return nil
 }
 
 // UpdateUsername implements UserUseCase.
@@ -39,9 +54,9 @@ func (u *userUseCase) UpdateUsername(payload req.UpdateUserNameRequest) error {
 
 }
 
-func NewUserUseCase(repo repository.UserRepository) UserUseCase {
+func NewUserUseCase(repo repository.UserRepository) *userUseCase {
 	return &userUseCase{
-		repo: repo,
+		repo,
 	}
 }
 
