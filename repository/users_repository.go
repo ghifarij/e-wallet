@@ -15,16 +15,10 @@ type UserRepository interface {
 	UpdateUserName(payload req.UpdateUserNameRequest) error
 	FindAll() ([]model.Users, error)
 	DeleteById(id string) error
-	FindByUserId(id string) (interface{}, interface{})
 }
 
 type userRepository struct {
 	db *sql.DB
-}
-
-func (u *userRepository) FindByUserId(id string) (interface{}, interface{}) {
-	//TODO implement me
-	panic("implement me")
 }
 
 func NewUserRepository(db *sql.DB) *userRepository {
