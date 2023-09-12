@@ -76,7 +76,31 @@ func (u *userRepository) UpdateUserName(username string) error {
 
 func (u *userRepository) FindAll() ([]model.Users, error) {
 	//TODO implement me
-	panic("implement me")
+	rows, err := u.db.Query("SELECT id, full_name, user_name, email, phone_number, password, password_confirm, created_at, updated_at, deleted_at FROM users")
+	if err != nil {
+		return nil, err
+	}
+	var users []model.Users
+	for rows.Next() {
+		var user model.Users
+		err := rows.Scan(
+			&user.Id,
+			&user.FullName,
+			&user.UserName,
+			&user.Email,
+			&user.PhoneNumber,
+			&user.Password,
+			&user.PasswordConfirm,
+			&user.CreatedAt,
+			&user.UpdatedAt,
+			&user.DeleteAt,
+		)
+		if err != nil {
+			return nil, err
+		}
+		users = append(users, user)
+	}
+	return users, nil
 }
 
 func (u *userRepository) DeleteById(id string) error {
