@@ -67,6 +67,17 @@ func (a *AuthController) registerHandler(c *gin.Context) {
 	c.JSON(response.Status, response)
 }
 
+func (a *AuthController) listHandler(c *gin.Context) {
+	users, err := a.userUC.FindAll()
+	if err != nil {
+		c.JSON(500, gin.H{
+			"message": err.Error(),
+		})
+		return
+	}
+	c.JSON(200, users)
+}
+
 func (a *AuthController) changePasswordHandler(c *gin.Context) {
 	var payload req.UpdatePasswordRequest
 	if err := c.ShouldBindJSON(&payload); err != nil {
@@ -138,6 +149,7 @@ func (a *AuthController) Route() {
 	rg.POST("/auth/register", a.registerHandler)
 	rg.PATCH("/auth/change-password", a.changePasswordHandler)
 	rg.GET("/users/:phoneNumber", a.findByPhoneNumber)
+	rg.GET("/users", a.listHandler)
 	rg.PUT("/users/update-username", a.updateUsername)
 }
 
