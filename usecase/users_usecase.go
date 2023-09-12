@@ -14,6 +14,7 @@ import (
 
 type UserUseCase interface {
 	FindByUserName(username string) (model.Users, error)
+	FindAll() ([]model.Users, error)
 	Register(payload req.AuthRegisterRequest) error
 	UpdateUsername(payload req.UpdateUserNameRequest) error
 	FindByPhoneNumber(phoneNumber string) (model.Users, error)
@@ -47,6 +48,15 @@ func NewUserUseCase(repo repository.UserRepository) UserUseCase {
 // FindByUsername implements UserUseCase.
 func (u *userUseCase) FindByUserName(username string) (model.Users, error) {
 	return u.repo.FindByUserName(username)
+}
+
+// FindAll implements UserUseCase.
+func (u *userUseCase) FindAll() ([]model.Users, error) {
+	users, err := u.repo.FindAll()
+	if err != nil {
+		return nil, fmt.Errorf("failed to get all data: %v", err)
+	}
+	return users, nil
 }
 
 // Register implements UserUseCase.
