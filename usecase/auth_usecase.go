@@ -50,11 +50,8 @@ func (a *authUseCase) Login(payload req.AuthLoginRequest) (resp.LoginResponse, e
 	}
 
 	return resp.LoginResponse{
-		//Status:   ,
 		UserName: user.UserName,
-		//Message:  "",
-		//Data:     nil,
-		Token: token,
+		Token:    token,
 	}, nil
 }
 
