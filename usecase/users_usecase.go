@@ -15,7 +15,8 @@ import (
 type UserUseCase interface {
 	FindByUserName(username string) (model.Users, error)
 	Register(payload req.AuthRegisterRequest) error
-	UpdateUsername(username string) error
+	UpdateUsername(payload req.UpdateUserNameRequest) error
+	FindByPhoneNumber(phoneNumber string) (model.Users, error)
 }
 
 type userUseCase struct {
@@ -23,8 +24,14 @@ type userUseCase struct {
 }
 
 // UpdateUsername implements UserUseCase.
-func (u *userUseCase) UpdateUsername(username string) error {
-	if err := u.repo.UpdateUserName(username); err != nil {
+func (u *userUseCase) UpdateUsername(payload req.UpdateUserNameRequest) error {
+	validate := validator.New()
+	err := validate.Struct(payload)
+	if err != nil {
+		return err
+	}
+
+	if err := u.repo.UpdateUserName(payload); err != nil {
 		return fmt.Errorf("failed update username: %v", err.Error())
 	}
 	return nil
@@ -83,4 +90,12 @@ func (u *userUseCase) Register(payload req.AuthRegisterRequest) error {
 		return fmt.Errorf("failed save user: %v", err.Error())
 	}
 	return nil
+}
+
+func (u *userUseCase) FindByPhoneNumber(phoneNumber string) (model.Users, error) {
+	byPhoneNumber, err := u.repo.FindByPhoneNumber(phoneNumber)
+	if err != nil {
+		return model.Users{}, fmt.Errorf("Customer not found")
+	}
+	return byPhoneNumber, nil
 }

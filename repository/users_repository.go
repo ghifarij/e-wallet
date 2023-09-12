@@ -2,6 +2,7 @@ package repository
 
 import (
 	"Kelompok-2/dompet-online/model"
+	"Kelompok-2/dompet-online/model/dto/req"
 	"database/sql"
 )
 
@@ -10,7 +11,7 @@ type UserRepository interface {
 	FindByUserName(username string) (model.Users, error)
 	FindByPhoneNumber(phoneNumber string) (model.Users, error)
 	UpdatePassword(username string, newPassword string, newPasswordConfirm string) error
-	UpdateUserName(username string) error
+	UpdateUserName(payload req.UpdateUserNameRequest) error
 	FindAll() ([]model.Users, error)
 	DeleteById(id string) error
 }
@@ -69,8 +70,8 @@ func (u *userRepository) UpdatePassword(username string, newPassword string, new
 	return nil
 }
 
-func (u *userRepository) UpdateUserName(username string) error {
-	_, err := u.db.Exec("UPADTE users SET username =$1", username)
+func (u *userRepository) UpdateUserName(payload req.UpdateUserNameRequest) error {
+	_, err := u.db.Exec("UPDATE users SET username =$2 WHERE id =$1", payload.Id, payload.Username)
 	if err != nil {
 		return err
 	}
@@ -89,6 +90,15 @@ func (u *userRepository) DeleteById(id string) error {
 }
 
 func (u *userRepository) FindByPhoneNumber(phoneNumber string) (model.Users, error) {
-	//TODO implement me
-	panic("implement me")
+	row := u.db.QueryRow("SELECT id, user_name, password FROM users WHERE phone_number = $1", phoneNumber)
+	var user model.Users
+	err := row.Scan(
+		&user.Id,
+		&user.UserName,
+		&user.Password,
+	)
+	if err != nil {
+		return model.Users{}, err
+	}
+	return user, nil
 }
