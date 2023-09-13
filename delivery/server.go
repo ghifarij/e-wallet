@@ -33,9 +33,9 @@ func (s *Server) initMiddleware() {
 
 func (s *Server) initControllers() {
 	// Inisialisasi Controller
-	controller.NewAuthController(s.ucManager.UserUseCase(), s.engine).AuthRoute()
-	controller.NewAuthController(s.ucManager.UserUseCase(), s.engine).UsersRoute()
-
+	controller.NewUserController(s.ucManager.UserUseCase(), s.ucManager.WalletUseCase(), s.engine).AuthRoute()
+	controller.NewUserController(s.ucManager.UserUseCase(), s.ucManager.WalletUseCase(), s.engine).UsersRoute()
+	//controller.NewWalletController(s.ucManager.WalletUseCase(), s.engine).Route()
 }
 
 func NewServer() *Server {

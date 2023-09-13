@@ -4,6 +4,7 @@ import "Kelompok-2/dompet-online/usecase"
 
 type UseCaseManager interface {
 	UserUseCase() usecase.UserUseCase
+	WalletUseCase() usecase.WalletUseCase
 }
 
 type useCaseManager struct {
@@ -17,5 +18,9 @@ func NewUseCaseManager(repoManager RepoManager) UseCaseManager {
 }
 
 func (u *useCaseManager) UserUseCase() usecase.UserUseCase {
-	return usecase.NewUserUseCase(u.repoManager.UserRepo())
+	return usecase.NewUserUseCase(u.repoManager.UserRepo(), u.WalletUseCase())
+}
+
+func (u *useCaseManager) WalletUseCase() usecase.WalletUseCase {
+	return usecase.NewWalletUseCase(u.repoManager.WalletRepo())
 }

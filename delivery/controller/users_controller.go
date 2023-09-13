@@ -12,13 +12,42 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-type AuthController struct {
-	userUC usecase.UserUseCase
-	engine *gin.Engine
+type UserController struct {
+	userUC   usecase.UserUseCase
+	walletUC usecase.WalletUseCase
+	engine   *gin.Engine
+}
+
+func NewUserController(userUC usecase.UserUseCase, walletUC usecase.WalletUseCase, engine *gin.Engine) *UserController {
+	return &UserController{
+		userUC:   userUC,
+		walletUC: walletUC,
+		engine:   engine,
+	}
+}
+
+// Route
+func (a *UserController) AuthRoute() {
+	rg := a.engine.Group("/api/v1")
+
+	rg.POST("/auth/login", a.loginHandler)
+	rg.POST("/auth/register", a.registerHandler)
+}
+
+func (a *UserController) UsersRoute() {
+	rg := a.engine.Group("/api/v1", middleware.AuthMiddleware())
+
+	rg.GET("/users/:phoneNumber", a.findByPhoneNumber)
+	rg.GET("/users", a.listHandler)
+	rg.PUT("/users/update-username", a.updateUsername)
+	rg.DELETE("/users/:id", a.updateUsername)
+	rg.PATCH("/users/change-password", a.changePasswordHandler)
+	rg.GET("/wallets/:userId", a.getWalletByUserId)
+
 }
 
 // Auth
-func (a *AuthController) loginHandler(c *gin.Context) {
+func (a *UserController) loginHandler(c *gin.Context) {
 	var payload req.AuthLoginRequest
 	if err := c.ShouldBindJSON(&payload); err != nil {
 		exception.ErrorHandling(c, err)
@@ -41,16 +70,20 @@ func (a *AuthController) loginHandler(c *gin.Context) {
 	c.JSON(response.Status, response)
 }
 
-func (a *AuthController) registerHandler(c *gin.Context) {
+func (a *UserController) registerHandler(c *gin.Context) {
 	var payload req.AuthRegisterRequest
 	if err := c.ShouldBindJSON(&payload); err != nil {
-		exception.ErrorHandling(c, err)
+		c.AbortWithStatusJSON(400, gin.H{
+			"message": err.Error(),
+		})
 		return
 	}
 
 	err := a.userUC.Register(payload)
 	if err != nil {
-		exception.ErrorHandling(c, err)
+		c.AbortWithStatusJSON(400, gin.H{
+			"message": err.Error(),
+		})
 		return
 	}
 
@@ -62,29 +95,8 @@ func (a *AuthController) registerHandler(c *gin.Context) {
 	c.JSON(response.Status, response)
 }
 
-func (a *AuthController) changePasswordHandler(c *gin.Context) {
-	var payload req.UpdatePasswordRequest
-	if err := c.ShouldBindJSON(&payload); err != nil {
-		exception.ErrorHandling(c, err)
-		return
-	}
-
-	err := a.userUC.ChangePassword(payload)
-	if err != nil {
-		exception.ErrorHandling(c, err)
-		return
-	}
-
-	response := resp.UpdatePasswordResponse{
-		Status:  http.StatusOK,
-		Message: "successfully change password",
-	}
-
-	c.JSON(response.Status, response)
-}
-
 // Users
-func (a *AuthController) listHandler(c *gin.Context) {
+func (a *UserController) listHandler(c *gin.Context) {
 	users, err := a.userUC.FindAll()
 	if err != nil {
 		exception.ErrorHandling(c, err)
@@ -93,7 +105,7 @@ func (a *AuthController) listHandler(c *gin.Context) {
 	c.JSON(200, users)
 }
 
-func (a *AuthController) findByPhoneNumber(c *gin.Context) {
+func (a *UserController) findByPhoneNumber(c *gin.Context) {
 	phoneNumber := c.Param("phoneNumber")
 	user, err := a.userUC.FindByPhoneNumber(phoneNumber)
 
@@ -105,7 +117,7 @@ func (a *AuthController) findByPhoneNumber(c *gin.Context) {
 	c.JSON(http.StatusOK, user)
 }
 
-func (a *AuthController) updateUsername(c *gin.Context) {
+func (a *UserController) updateUsername(c *gin.Context) {
 	var payload req.UpdateUserNameRequest
 	if err := c.ShouldBindJSON(&payload); err != nil {
 		exception.ErrorHandling(c, err)
@@ -126,7 +138,7 @@ func (a *AuthController) updateUsername(c *gin.Context) {
 	c.JSON(response.Status, response)
 }
 
-func (a *AuthController) deleteById(c *gin.Context) {
+func (a *UserController) deleteById(c *gin.Context) {
 	id := c.Param("id")
 
 	err := a.userUC.DeleteById(id)
@@ -141,27 +153,36 @@ func (a *AuthController) deleteById(c *gin.Context) {
 	})
 }
 
-// Route
-func (a *AuthController) AuthRoute() {
-	rg := a.engine.Group("/api/v1")
-
-	rg.POST("/auth/login", a.loginHandler)
-	rg.POST("/auth/register", a.registerHandler)
-	rg.PATCH("/auth/change-password", a.changePasswordHandler)
-}
-
-func (a *AuthController) UsersRoute() {
-	rg := a.engine.Group("/api/v1", middleware.AuthMiddleware())
-
-	rg.GET("/users/:phoneNumber", a.findByPhoneNumber)
-	rg.GET("/users", a.listHandler)
-	rg.PUT("/users/update-username", a.updateUsername)
-	rg.DELETE("/users/:id", a.updateUsername)
-}
-
-func NewAuthController(userUC usecase.UserUseCase, engine *gin.Engine) *AuthController {
-	return &AuthController{
-		userUC: userUC,
-		engine: engine,
+func (a *UserController) changePasswordHandler(c *gin.Context) {
+	var payload req.UpdatePasswordRequest
+	if err := c.ShouldBindJSON(&payload); err != nil {
+		exception.ErrorHandling(c, err)
+		return
 	}
+
+	err := a.userUC.ChangePassword(payload)
+	if err != nil {
+		exception.ErrorHandling(c, err)
+		return
+	}
+
+	response := resp.UpdatePasswordResponse{
+		Status:  http.StatusOK,
+		Message: "successfully change password",
+	}
+
+	c.JSON(response.Status, response)
+}
+
+func (a *UserController) getWalletByUserId(c *gin.Context) {
+	userId := c.Param("userId")
+
+	wallet, err := a.walletUC.GetWalletByUserId(userId)
+	if err != nil {
+		c.AbortWithStatusJSON(400, gin.H{
+			"message": err.Error(),
+		})
+		return
+	}
+	c.JSON(http.StatusOK, wallet)
 }

@@ -22,14 +22,23 @@ type UserUseCase interface {
 	FindByPhoneNumber(phoneNumber string) (model.Users, error)
 	Login(payload req.AuthLoginRequest) (resp.LoginResponse, error)
 	ChangePassword(payload req.UpdatePasswordRequest) error
+	FindById(Id string) (model.Users, error)
 }
 
 type userUseCase struct {
-	repo repository.UserRepository
+	repo     repository.UserRepository
+	walletUc WalletUseCase
 }
 
-func NewUserUseCase(repo repository.UserRepository) UserUseCase {
-	return &userUseCase{repo: repo}
+func NewUserUseCase(repo repository.UserRepository, walletUc WalletUseCase) UserUseCase {
+	return &userUseCase{
+		repo:     repo,
+		walletUc: walletUc,
+	}
+}
+
+func (u *userUseCase) FindById(id string) (model.Users, error) {
+	return u.repo.FindById(id)
 }
 
 func (u *userUseCase) DeleteById(id string) error {
@@ -108,6 +117,20 @@ func (u *userUseCase) Register(payload req.AuthRegisterRequest) error {
 	if err != nil {
 		return fmt.Errorf("failed save user: %v", err.Error())
 	}
+
+	wallet := model.Wallet{
+		Id:           common.GenerateID(),
+		UserId:       user.Id,
+		RekeningUser: common.GenerateRandomRekeningNumber(10),
+		Balance:      0,
+	}
+
+	// Panggil use case wallet untuk menyimpan wallet
+	err = u.walletUc.CreateWallet(wallet)
+	if err != nil {
+		return fmt.Errorf("failed create wallet: %v", err.Error())
+	}
+
 	return nil
 }
 
