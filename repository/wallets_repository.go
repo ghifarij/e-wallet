@@ -6,7 +6,7 @@ import (
 )
 
 type WalletRepository interface {
-	FindByUserId(id string) (model.Wallet, error)
+	FindByUserId(userid string) (model.Wallet, error)
 	FindByRekeningUser(number string) (model.Wallet, error)
 	Save(wallet model.Wallet) error
 }
@@ -16,7 +16,6 @@ type walletRepository struct {
 }
 
 func (w *walletRepository) FindByUserId(userid string) (model.Wallet, error) {
-	//TODO implement me
 	row := w.db.QueryRow("SELECT id, user_id, rekening_user, balance FROM wallets WHERE user_id = $1", userid)
 	var wallet model.Wallet
 	err := row.Scan(
@@ -46,7 +45,7 @@ func (w *walletRepository) FindByRekeningUser(number string) (model.Wallet, erro
 }
 
 func (w *walletRepository) Save(wallet model.Wallet) error {
-	_, err := w.db.Exec(`INSERT INTO wallets (id, rekening_user, balance WHERE user_id = $2) VALUES($1, $2, $3, $4)`,
+	_, err := w.db.Exec(`INSERT INTO wallets (id, user_id, rekening_user, balance) VALUES($1, $2, $3, $4)`,
 		wallet.Id,
 		wallet.UserId,
 		wallet.RekeningUser,
