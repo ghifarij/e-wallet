@@ -22,11 +22,17 @@ type UserUseCase interface {
 	FindByPhoneNumber(phoneNumber string) (model.Users, error)
 	Login(payload req.AuthLoginRequest) (resp.LoginResponse, error)
 	ChangePassword(payload req.UpdatePasswordRequest) error
+	FindById(Id string) (model.Users, error)
 }
 
 type userUseCase struct {
 	repo     repository.UserRepository
 	walletUC WalletUseCase
+}
+
+func (u *userUseCase) FindById(id string) (model.Users, error) {
+	return u.repo.FindById(id)
+
 }
 
 func NewUserUseCase(repo repository.UserRepository) UserUseCase {

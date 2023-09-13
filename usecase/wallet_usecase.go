@@ -17,13 +17,13 @@ type WalletUseCase interface {
 }
 
 type walletUseCase struct {
-	userRepository   repository.UserRepository
+	userUC           UserUseCase
 	walletRepository repository.WalletRepository
 }
 
 func (w *walletUseCase) FindByUserId(id string) (model.Users, error) {
 
-	byId, err := w.userRepository.FindById(id)
+	byId, err := w.userUC.FindById(id)
 	if err != nil {
 		return model.Users{}, fmt.Errorf("user not found")
 	}
@@ -53,19 +53,18 @@ func (w *walletUseCase) CreateWallet(payload req.WalletRequestBody) error {
 	if err != nil {
 		return err
 	}
-
-	user, err := w.userRepository.FindById(payload.UserId)
+	user, err := w.userUC.FindById(payload.UserId)
 	if err != nil {
-		return err
+		return fmt.Errorf("id di user")
 	}
 
 	wallet, err := w.walletRepository.FindByUserId(user.Id)
 	if err != nil {
-		return err
+		return fmt.Errorf("user_id di wallet")
 	}
 
 	wallet.UserId = user.Id
-	wallet.RekeningUser = common.GenerateRandomRekeningNumber(10)
+	wallet.RekeningUser = common.GenerateRandomRekeningNumber(user.Id)
 	wallet.Balance = 0
 
 	err = w.walletRepository.Save(wallet)
@@ -76,9 +75,9 @@ func (w *walletUseCase) CreateWallet(payload req.WalletRequestBody) error {
 	return nil
 }
 
-func NewWalletUseCase(userRepository repository.UserRepository, walletRepository repository.WalletRepository) WalletUseCase {
+func NewWalletUseCase(userUC UserUseCase, walletRepository repository.WalletRepository) WalletUseCase {
 	return &walletUseCase{
-		userRepository:   userRepository,
+		userUC:           userUC,
 		walletRepository: walletRepository,
 	}
 }

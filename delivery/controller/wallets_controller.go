@@ -26,12 +26,16 @@ func NewWalletController(walletUC usecase.WalletUseCase, userUC usecase.UserUseC
 func (w *WalletController) createWallet(c *gin.Context) {
 	var wallet req.WalletRequestBody
 	if err := c.ShouldBindJSON(&wallet); err != nil {
-		exception.ErrorHandling(c, err)
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"message": err.Error(),
+		})
 		return
 	}
 	err := w.walletUC.CreateWallet(wallet)
 	if err != nil {
-		exception.ErrorHandling(c, err)
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"message": err.Error(),
+		})
 		return
 	}
 	c.JSON(http.StatusCreated, wallet)

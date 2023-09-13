@@ -22,5 +22,5 @@ func (u *useCaseManager) UserUseCase() usecase.UserUseCase {
 }
 
 func (u *useCaseManager) WalletUseCase() usecase.WalletUseCase {
-	return usecase.NewWalletUseCase(u.repoManager.UserRepo(), u.repoManager.WalletRepo())
+	return usecase.NewWalletUseCase(u.UserUseCase(), u.repoManager.WalletRepo())
 }

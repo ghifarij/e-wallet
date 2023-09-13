@@ -1,14 +1,14 @@
 package common
 
-import "math/rand"
+import "fmt"
 
-func GenerateRandomRekeningNumber(length int) string {
-	const charset = "0123456789"
-	result := make([]byte, length)
-
-	for i := range result {
-		result[i] = charset[rand.Intn(len(charset))]
+func GenerateRandomRekeningNumber(userID string) string {
+	// Check the length of the userID (assuming it's a UUID)
+	if len(userID) < 10 {
+		return fmt.Sprintf("10000%s", userID)
+	} else if len(userID) < 100 {
+		return fmt.Sprintf("1000%s", userID)
+	} else {
+		return fmt.Sprintf("100%s", userID)
 	}
-
-	return string(result)
 }

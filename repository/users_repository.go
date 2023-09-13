@@ -139,9 +139,9 @@ func (u *userRepository) FindByPhoneNumber(phoneNumber string) (model.Users, err
 	return user, nil
 }
 
-func (u *userRepository) FindById(Id string) (model.Users, error) {
+func (u *userRepository) FindById(id string) (model.Users, error) {
 
-	row := u.db.QueryRow("SELECT id, name FROM uom WHERE id = $1", Id)
+	row := u.db.QueryRow("SELECT id, full_name, user_name, email, phone_number, password, password_confirm, created_at, updated_at, deleted_at FROM users WHERE id = $1", id)
 	var users model.Users
 	err := row.Scan(&users.Id)
 	if err != nil {
