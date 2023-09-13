@@ -25,7 +25,8 @@ type UserUseCase interface {
 }
 
 type userUseCase struct {
-	repo repository.UserRepository
+	repo     repository.UserRepository
+	walletUC WalletUseCase
 }
 
 func NewUserUseCase(repo repository.UserRepository) UserUseCase {

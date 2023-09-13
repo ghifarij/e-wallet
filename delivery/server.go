@@ -35,7 +35,7 @@ func (s *Server) initControllers() {
 	// Inisialisasi Controller
 	controller.NewAuthController(s.ucManager.UserUseCase(), s.engine).AuthRoute()
 	controller.NewAuthController(s.ucManager.UserUseCase(), s.engine).UsersRoute()
-
+	controller.NewWalletController(s.ucManager.WalletUseCase(), s.ucManager.UserUseCase(), s.engine).Route()
 }
 
 func NewServer() *Server {
