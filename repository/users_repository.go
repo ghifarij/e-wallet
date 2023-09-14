@@ -12,7 +12,7 @@ type UserRepository interface {
 	FindById(id string) (model.Users, error)
 	FindByPhoneNumber(phoneNumber string) (model.Users, error)
 	UpdatePassword(username string, newPassword string, newPasswordConfirm string) error
-	UpdateUserName(payload req.UpdateUserNameRequest) error
+	UpdateAccount(payload req.UpdateAccountRequest) error
 	FindAll() ([]model.Users, error)
 	DeleteById(id string) error
 }
@@ -71,8 +71,8 @@ func (u *userRepository) UpdatePassword(username string, newPassword string, new
 	return nil
 }
 
-func (u *userRepository) UpdateUserName(payload req.UpdateUserNameRequest) error {
-	_, err := u.db.Exec("UPDATE users SET user_name =$2 WHERE id =$1", payload.Id, payload.Username)
+func (u *userRepository) UpdateAccount(payload req.UpdateAccountRequest) error {
+	_, err := u.db.Exec("UPDATE users SET full_name =$2, user_name =$3, email =$4, phone_number =$5 WHERE id =$1", payload.Id, payload.FullName, payload.Username, payload.Email, payload.PhoneNumber)
 	if err != nil {
 		return err
 	}
@@ -81,7 +81,6 @@ func (u *userRepository) UpdateUserName(payload req.UpdateUserNameRequest) error
 }
 
 func (u *userRepository) FindAll() ([]model.Users, error) {
-	//TODO implement me
 	rows, err := u.db.Query("SELECT id, full_name, user_name, email, phone_number, password, password_confirm, created_at, updated_at, deleted_at FROM users")
 	if err != nil {
 		return nil, err

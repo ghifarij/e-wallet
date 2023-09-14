@@ -5,6 +5,7 @@ import "Kelompok-2/dompet-online/repository"
 type RepoManager interface {
 	UserRepo() repository.UserRepository
 	WalletRepo() repository.WalletRepository
+	TransactionRepo() repository.TransactionRepository
 }
 
 type repoManager struct {
@@ -21,4 +22,8 @@ func (r *repoManager) UserRepo() repository.UserRepository {
 
 func (r *repoManager) WalletRepo() repository.WalletRepository {
 	return repository.NewWalletRepository(r.infraManager.Conn())
+}
+
+func (r *repoManager) TransactionRepo() repository.TransactionRepository {
+	return repository.NewTransactionRepository(r.infraManager.Conn())
 }

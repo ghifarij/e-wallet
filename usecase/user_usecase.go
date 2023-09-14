@@ -17,7 +17,7 @@ type UserUseCase interface {
 	FindByUserName(username string) (model.Users, error)
 	FindAll() ([]model.Users, error)
 	Register(payload req.AuthRegisterRequest) error
-	UpdateUsername(payload req.UpdateUserNameRequest) error
+	UpdateAccount(payload req.UpdateAccountRequest) error
 	DeleteById(id string) error
 	FindByPhoneNumber(phoneNumber string) (model.Users, error)
 	Login(payload req.AuthLoginRequest) (resp.LoginResponse, error)
@@ -55,14 +55,14 @@ func (u *userUseCase) DeleteById(id string) error {
 }
 
 // UpdateUsername implements UserUseCase.
-func (u *userUseCase) UpdateUsername(payload req.UpdateUserNameRequest) error {
+func (u *userUseCase) UpdateAccount(payload req.UpdateAccountRequest) error {
 	validate := validator.New()
 	err := validate.Struct(payload)
 	if err != nil {
 		return err
 	}
 
-	if err := u.repo.UpdateUserName(payload); err != nil {
+	if err := u.repo.UpdateAccount(payload); err != nil {
 		return fmt.Errorf("failed update username: %v", err.Error())
 	}
 	return nil

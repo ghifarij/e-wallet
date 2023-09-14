@@ -39,8 +39,8 @@ func (a *UserController) UsersRoute() {
 
 	rg.GET("/users/:phoneNumber", a.findByPhoneNumber)
 	rg.GET("/users", a.listHandler)
-	rg.PUT("/users/update-username", a.updateUsername)
-	rg.DELETE("/users/:id", a.updateUsername)
+	rg.PUT("/users/update-account", a.updateAccount)
+	rg.DELETE("/users/:id", a.deleteById)
 	rg.PATCH("/users/change-password", a.changePasswordHandler)
 	rg.GET("/wallets/:userId", a.getWalletByUserId)
 
@@ -117,14 +117,14 @@ func (a *UserController) findByPhoneNumber(c *gin.Context) {
 	c.JSON(http.StatusOK, user)
 }
 
-func (a *UserController) updateUsername(c *gin.Context) {
-	var payload req.UpdateUserNameRequest
+func (a *UserController) updateAccount(c *gin.Context) {
+	var payload req.UpdateAccountRequest
 	if err := c.ShouldBindJSON(&payload); err != nil {
 		exception.ErrorHandling(c, err)
 		return
 	}
 
-	err := a.userUC.UpdateUsername(payload)
+	err := a.userUC.UpdateAccount(payload)
 	if err != nil {
 		exception.ErrorHandling(c, err)
 		return
@@ -132,7 +132,7 @@ func (a *UserController) updateUsername(c *gin.Context) {
 
 	response := resp.UpdateUserNameRespone{
 		Status:  http.StatusOK,
-		Message: "successfully Update username",
+		Message: "successfully Update account",
 	}
 
 	c.JSON(response.Status, response)
