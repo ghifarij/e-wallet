@@ -188,3 +188,7 @@ time="2023-09-14T19:20:50+07:00" level=error msg="{2023-09-14 19:14:12.724084312
 time="2023-09-14T19:26:27+07:00" level=info msg="{2023-09-14 19:26:19.797600767 +0700 WIB m=+0.006474097 8.16898081s 200 ::1 PUT /api/v1/users/update-account PostmanRuntime/7.32.3}"
 time="2023-09-14T19:28:25+07:00" level=warning msg="{2023-09-14 19:28:15.540382631 +0700 WIB m=+0.005295847 10.117724921s 400 ::1 PUT /api/v1/users/update-account PostmanRuntime/7.32.3}"
 time="2023-09-14T19:29:03+07:00" level=info msg="{2023-09-14 19:28:15.540382631 +0700 WIB m=+0.005295847 47.936456301s 200 ::1 PUT /api/v1/users/update-account PostmanRuntime/7.32.3}"
+time="2023-09-15T09:47:36+07:00" level=error msg="{2023-09-15 09:43:55.082758141 +0700 WIB m=+0.005712034 3m41.032099188s 500 ::1 POST /api/v1/auth/login PostmanRuntime/7.32.3}"
+time="2023-09-15T09:47:46+07:00" level=info msg="{2023-09-15 09:43:55.082758141 +0700 WIB m=+0.005712034 3m51.621222986s 200 ::1 POST /api/v1/auth/login PostmanRuntime/7.32.3}"
+time="2023-09-15T09:48:35+07:00" level=info msg="{2023-09-15 09:43:55.082758141 +0700 WIB m=+0.005712034 4m40.351430887s 200 ::1 POST /api/v1/auth/login PostmanRuntime/7.32.3}"
+time="2023-09-15T09:49:08+07:00" level=info msg="{2023-09-15 09:43:55.082758141 +0700 WIB m=+0.005712034 5m13.057503176s 200 ::1 POST /api/v1/auth/login PostmanRuntime/7.32.3}"

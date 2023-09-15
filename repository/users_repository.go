@@ -11,6 +11,7 @@ type UserRepository interface {
 	FindByUserName(username string) (model.Users, error)
 	FindById(id string) (model.Users, error)
 	FindByPhoneNumber(phoneNumber string) (model.Users, error)
+	FindByUsernameEmailPhoneNumber(identifier string) (model.Users, error)
 	UpdatePassword(username string, newPassword string, newPasswordConfirm string) error
 	UpdateAccount(payload req.UpdateAccountRequest) error
 	FindAll() ([]model.Users, error)
@@ -147,4 +148,25 @@ func (u *userRepository) FindById(id string) (model.Users, error) {
 		return model.Users{}, err
 	}
 	return users, nil
+}
+
+func (u *userRepository) FindByUsernameEmailPhoneNumber(identifier string) (model.Users, error) {
+	row := u.db.QueryRow("SELECT id, full_name, user_name, email, phone_number, password, password_confirm, created_at, updated_at, deleted_at FROM users WHERE user_name = $1 OR email = $2 OR phone_number = $3", identifier, identifier, identifier)
+	var user model.Users
+	err := row.Scan(
+		&user.Id,
+		&user.FullName,
+		&user.UserName,
+		&user.Email,
+		&user.PhoneNumber,
+		&user.Password,
+		&user.PasswordConfirm,
+		&user.CreatedAt,
+		&user.UpdatedAt,
+		&user.DeleteAt,
+	)
+	if err != nil {
+		return model.Users{}, err
+	}
+	return user, nil
 }

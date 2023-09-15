@@ -23,6 +23,7 @@ type UserUseCase interface {
 	Login(payload req.AuthLoginRequest) (resp.LoginResponse, error)
 	ChangePassword(payload req.UpdatePasswordRequest) error
 	FindById(Id string) (model.Users, error)
+	FindByUsernameEmailPhoneNumber(identifier string) (model.Users, error)
 }
 
 type userUseCase struct {
@@ -144,6 +145,7 @@ func (u *userUseCase) FindByPhoneNumber(phoneNumber string) (model.Users, error)
 }
 
 // Login implements UserUseCase.
+// Login implements UserUseCase.
 func (u *userUseCase) Login(payload req.AuthLoginRequest) (resp.LoginResponse, error) {
 	// Validasi payload menggunakan struct
 	validate := validator.New()
@@ -152,8 +154,19 @@ func (u *userUseCase) Login(payload req.AuthLoginRequest) (resp.LoginResponse, e
 		return resp.LoginResponse{}, err
 	}
 
-	// read Username di db
-	user, err := u.repo.FindByUserName(payload.UserName)
+	var user model.Users
+
+	// Determine which identifier is provided and use the appropriate method to find the user
+	if payload.UserName != "" {
+		user, err = u.FindByUsernameEmailPhoneNumber(payload.UserName)
+	} else if payload.Email != "" {
+		user, err = u.FindByUsernameEmailPhoneNumber(payload.Email)
+	} else if payload.PhoneNumber != "" {
+		user, err = u.FindByUsernameEmailPhoneNumber(payload.PhoneNumber)
+	} else {
+		return resp.LoginResponse{}, fmt.Errorf("invalid login request: no identifier provided")
+	}
+
 	if err != nil {
 		return resp.LoginResponse{}, fmt.Errorf("unauthorized: invalid credential")
 	}
@@ -214,4 +227,12 @@ func (u *userUseCase) ChangePassword(payload req.UpdatePasswordRequest) error {
 		return fmt.Errorf("failed save user: %v", err.Error())
 	}
 	return nil
+}
+
+func (u *userUseCase) FindByUsernameEmailPhoneNumber(identifier string) (model.Users, error) {
+	user, err := u.repo.FindByUsernameEmailPhoneNumber(identifier)
+	if err != nil {
+		return model.Users{}, err
+	}
+	return user, nil
 }
