@@ -111,6 +111,7 @@ func (u *userUseCase) Register(payload req.AuthRegisterRequest) error {
 		UserName:        payload.UserName,
 		Password:        hashPassword,
 		PasswordConfirm: hashPasswordConfirm,
+		IsActive:        true,
 		CreatedAt:       time.Now(),
 	}
 

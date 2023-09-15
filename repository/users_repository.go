@@ -30,7 +30,7 @@ func NewUserRepository(db *sql.DB) UserRepository {
 
 // Save implements UserRepository.
 func (u *userRepository) Save(user model.Users) error {
-	_, err := u.db.Exec(`INSERT INTO users(id, full_name, user_name, email, phone_number, password, password_confirm, created_at, updated_at, deleted_at) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)`,
+	_, err := u.db.Exec(`INSERT INTO users(id, full_name, user_name, email, phone_number, password, password_confirm, is_active, created_at, updated_at, deleted_at) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)`,
 		user.Id,
 		user.FullName,
 		user.UserName,
@@ -38,6 +38,7 @@ func (u *userRepository) Save(user model.Users) error {
 		user.PhoneNumber,
 		user.Password,
 		user.PasswordConfirm,
+		user.IsActive,
 		user.CreatedAt,
 		user.UpdatedAt,
 		user.DeleteAt,

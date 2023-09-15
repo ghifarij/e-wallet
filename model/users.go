@@ -10,6 +10,7 @@ type Users struct {
 	UserName        string
 	Password        string
 	PasswordConfirm string
+	IsActive        bool
 	CreatedAt       time.Time
 	UpdatedAt       time.Time
 	DeleteAt        time.Time
