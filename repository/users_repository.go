@@ -16,6 +16,7 @@ type UserRepository interface {
 	UpdateAccount(payload req.UpdateAccountRequest) error
 	FindAll() ([]model.Users, error)
 	DeleteById(id string) error
+	DisableUserId(id string) (model.Users, error)
 }
 
 type userRepository struct {
@@ -142,7 +143,7 @@ func (u *userRepository) FindByPhoneNumber(phoneNumber string) (model.Users, err
 
 func (u *userRepository) FindById(id string) (model.Users, error) {
 
-	row := u.db.QueryRow("SELECT id, full_name, user_name, email, phone_number, password, password_confirm, created_at, updated_at, deleted_at FROM users WHERE id = $1", id)
+	row := u.db.QueryRow("SELECT id FROM users WHERE id = $1", id)
 	var users model.Users
 	err := row.Scan(&users.Id)
 	if err != nil {
@@ -170,4 +171,12 @@ func (u *userRepository) FindByUsernameEmailPhoneNumber(identifier string) (mode
 		return model.Users{}, err
 	}
 	return user, nil
+}
+
+func (u *userRepository) DisableUserId(id string) (model.Users, error) {
+	_, err := u.db.Exec("UPDATE users SET is_active = false WHERE id = $1", id)
+	if err != nil {
+		return model.Users{}, err
+	}
+	return model.Users{}, nil
 }

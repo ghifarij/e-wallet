@@ -24,6 +24,7 @@ type UserUseCase interface {
 	ChangePassword(payload req.UpdatePasswordRequest) error
 	FindById(Id string) (model.Users, error)
 	FindByUsernameEmailPhoneNumber(identifier string) (model.Users, error)
+	DisableUserId(id string) (model.Users, error)
 }
 
 type userUseCase struct {
@@ -234,6 +235,19 @@ func (u *userUseCase) FindByUsernameEmailPhoneNumber(identifier string) (model.U
 	user, err := u.repo.FindByUsernameEmailPhoneNumber(identifier)
 	if err != nil {
 		return model.Users{}, err
+	}
+	return user, nil
+}
+
+func (u *userUseCase) DisableUserId(id string) (model.Users, error) {
+	user, err := u.repo.FindById(id)
+	if err != nil {
+		return model.Users{}, err
+	}
+
+	_, err = u.repo.DisableUserId(user.Id)
+	if err != nil {
+		return model.Users{}, fmt.Errorf("failed to disable users: %v", err)
 	}
 	return user, nil
 }

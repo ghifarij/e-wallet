@@ -43,7 +43,7 @@ func (a *UserController) UsersRoute() {
 	rg.DELETE("/users/:id", a.deleteById)
 	rg.PATCH("/users/change-password", a.changePasswordHandler)
 	rg.GET("/wallets/:userId", a.getWalletByUserId)
-
+	rg.PUT("/users/:userId", a.DisableUserID)
 }
 
 // Auth
@@ -185,4 +185,15 @@ func (a *UserController) getWalletByUserId(c *gin.Context) {
 		return
 	}
 	c.JSON(http.StatusOK, wallet)
+}
+
+func (a *UserController) DisableUserID(c *gin.Context) {
+	DisabeleUserId := c.Param("userId")
+	_, err := a.userUC.DisableUserId(DisabeleUserId)
+
+	if err != nil {
+		exception.ErrorHandling(c, err)
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{"message": "Akun berhasil dinonaktifkan"})
 }
