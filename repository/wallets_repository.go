@@ -9,10 +9,17 @@ type WalletRepository interface {
 	FindByUserId(userid string) (model.Wallet, error)
 	FindByRekeningUser(number string) (model.Wallet, error)
 	Save(wallet model.Wallet) error
+	UpdateWalletBalance(walletID string, amount int) error
 }
 
 type walletRepository struct {
 	db *sql.DB
+}
+
+func NewWalletRepository(db *sql.DB) WalletRepository {
+	return &walletRepository{
+		db: db,
+	}
 }
 
 func (w *walletRepository) FindByUserId(userid string) (model.Wallet, error) {
@@ -31,15 +38,16 @@ func (w *walletRepository) FindByUserId(userid string) (model.Wallet, error) {
 }
 
 func (w *walletRepository) FindByRekeningUser(number string) (model.Wallet, error) {
+	row := w.db.QueryRow(`SELECT id, user_id, rekening_user, balance FROM wallets WHERE rekening_user = $1`, number)
 	var wallet model.Wallet
-	err := w.db.QueryRow(`SELECT id, user_id, rekening_user, balance FROM wallets WHERE rekening_user = $1`, number).Scan(
+	err := row.Scan(
 		&wallet.Id,
 		&wallet.UserId,
 		&wallet.RekeningUser,
 		&wallet.Balance,
 	)
 	if err != nil {
-		return wallet, err
+		return model.Wallet{}, err
 	}
 	return wallet, nil
 }
@@ -59,8 +67,17 @@ func (w *walletRepository) Save(wallet model.Wallet) error {
 	return nil
 }
 
-func NewWalletRepository(db *sql.DB) WalletRepository {
-	return &walletRepository{
-		db: db,
+func (w *walletRepository) UpdateWalletBalance(walletID string, amount int) error {
+	query := `
+        UPDATE wallets
+        SET balance = balance + $1
+        WHERE id = $2
+    `
+
+	_, err := w.db.Exec(query, amount, walletID)
+	if err != nil {
+		return err
 	}
+
+	return nil
 }

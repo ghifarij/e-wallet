@@ -15,7 +15,6 @@ type UserRepository interface {
 	UpdatePassword(username string, newPassword string, newPasswordConfirm string) error
 	UpdateAccount(payload req.UpdateAccountRequest) error
 	FindAll() ([]model.Users, error)
-	DeleteById(id string) error
 	DisableUserId(id string) (model.Users, error)
 }
 
@@ -110,15 +109,6 @@ func (u *userRepository) FindAll() ([]model.Users, error) {
 		users = append(users, user)
 	}
 	return users, nil
-}
-
-func (u *userRepository) DeleteById(id string) error {
-	//TODO implement me
-	_, err := u.db.Exec("DELETE FROM users WHERE id = $1", id)
-	if err != nil {
-		return err
-	}
-	return nil
 }
 
 func (u *userRepository) FindByPhoneNumber(phoneNumber string) (model.Users, error) {

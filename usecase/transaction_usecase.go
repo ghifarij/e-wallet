@@ -17,7 +17,12 @@ type TransactionUseCase interface {
 }
 
 type transactionUseCase struct {
-	repo repository.TransactionRepository
+	repo     repository.TransactionRepository
+	walletUC WalletUseCase
+}
+
+func NewTransactionUseCase(repo repository.TransactionRepository, walletUC WalletUseCase) TransactionUseCase {
+	return &transactionUseCase{repo: repo, walletUC: walletUC}
 }
 
 func (t *transactionUseCase) GetHistoryTransactions(userId string) ([]resp.GetTransactionsResponse, error) {
@@ -30,26 +35,23 @@ func (t *transactionUseCase) GetHistoryTransactions(userId string) ([]resp.GetTr
 }
 
 func (t *transactionUseCase) TopUp(payload req.TopUpRequest) (model.Transactions, error) {
-	// Create a new transaction record
 	transaction := model.Transactions{
 		Id:              common.GenerateID(),
 		UserId:          payload.UserId,
 		SourceWalletID:  payload.WalletID,
-		Destination:     "TopUp", // TopUp transaction does not have a destination
+		Destination:     "TopUp",
 		Amount:          payload.Amount,
 		Description:     "TopUp",
 		PaymentMethodID: payload.PaymentMethodId,
 		CreateAt:        time.Now(),
 	}
 
-	// Create the transaction in the database
 	createdTransaction, err := t.repo.CreateTransaction(transaction)
 	if err != nil {
 		return model.Transactions{}, err
 	}
 
-	// Update the user's wallet balance
-	err = t.repo.UpdateWalletBalance(payload.WalletID, payload.Amount)
+	err = t.walletUC.UpdateWalletBalance(payload.WalletID, payload.Amount)
 	if err != nil {
 		return model.Transactions{}, err
 	}
@@ -58,8 +60,6 @@ func (t *transactionUseCase) TopUp(payload req.TopUpRequest) (model.Transactions
 }
 
 func (t *transactionUseCase) Transfer(payload req.TransferRequest) (model.Transactions, error) {
-
-	// Create a new transaction record
 	transaction := model.Transactions{
 		Id:              common.GenerateID(),
 		UserId:          payload.UserId,
@@ -70,20 +70,18 @@ func (t *transactionUseCase) Transfer(payload req.TransferRequest) (model.Transa
 		PaymentMethodID: payload.PaymentMethodID,
 	}
 
-	// Create the transaction in the database
 	createdTransaction, err := t.repo.CreateTransaction(transaction)
 	if err != nil {
 		return model.Transactions{}, err
 	}
 
-	// Update the source wallet balance (subtract the transfer amount)
-	err = t.repo.UpdateWalletBalance(payload.SourceWalletID, -payload.Amount)
+	//amount := -payload.Amount
+	err = t.walletUC.UpdateWalletBalance(payload.SourceWalletID, -payload.Amount)
 	if err != nil {
 		return model.Transactions{}, err
 	}
 
-	// Update the destination wallet balance (add the transfer amount)
-	err = t.repo.UpdateWalletBalance(payload.DestinationWalletID, payload.Amount)
+	err = t.walletUC.UpdateWalletBalance(payload.DestinationWalletID, payload.Amount)
 	if err != nil {
 		return model.Transactions{}, err
 	}
@@ -99,8 +97,4 @@ func (t *transactionUseCase) CountTransaction(userId string) (int, error) {
 
 	return count, nil
 
-}
-
-func NewTransactionUseCase(repo repository.TransactionRepository) TransactionUseCase {
-	return &transactionUseCase{repo: repo}
 }

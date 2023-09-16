@@ -8,11 +8,8 @@ import (
 
 type TransactionRepository interface {
 	FindAll(userId string) ([]resp.GetTransactionsResponse, error)
-	Count(userId string) (int, error)
-	FindWalletByUserID(userID string) (model.Wallet, error)
-	UpdateWalletBalance(walletID string, amount int) error
-	FindWalletByRekening(rekening string) (model.Wallet, error)
 	CreateTransaction(transaction model.Transactions) (model.Transactions, error)
+	Count(userId string) (int, error)
 }
 
 type transactionRepository struct {
@@ -79,59 +76,6 @@ func (t *transactionRepository) FindAll(userId string) ([]resp.GetTransactionsRe
 	return getTransactionsResponses, nil
 }
 
-func (t *transactionRepository) Count(userId string) (int, error) {
-	query := `
-        SELECT COUNT(*) FROM transactions WHERE user_id = $1
-    `
-
-	var count int
-	err := t.db.QueryRow(query, userId).Scan(&count)
-	if err != nil {
-		return 0, err
-	}
-
-	return count, nil
-}
-
-func (r *transactionRepository) FindWalletByUserID(userID string) (model.Wallet, error) {
-	query := "SELECT id, user_id, rekening_user, balance FROM wallets WHERE user_id = $1"
-	var wallet model.Wallet
-
-	err := r.db.QueryRow(query, userID).Scan(&wallet.Id, &wallet.UserId, &wallet.RekeningUser, &wallet.Balance)
-	if err != nil {
-		return model.Wallet{}, err
-	}
-
-	return wallet, nil
-}
-
-func (r *transactionRepository) UpdateWalletBalance(walletID string, amount int) error {
-	query := `
-        UPDATE wallets
-        SET balance = balance + $1
-        WHERE id = $2
-    `
-
-	_, err := r.db.Exec(query, amount, walletID)
-	if err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func (r *transactionRepository) FindWalletByRekening(rekening string) (model.Wallet, error) {
-	query := "SELECT id, user_id, rekening_user, balance FROM wallets WHERE rekening_user = $1"
-	var wallet model.Wallet
-
-	err := r.db.QueryRow(query, rekening).Scan(&wallet.Id, &wallet.UserId, &wallet.RekeningUser, &wallet.Balance)
-	if err != nil {
-		return model.Wallet{}, err
-	}
-
-	return wallet, nil
-}
-
 func (r *transactionRepository) CreateTransaction(transaction model.Transactions) (model.Transactions, error) {
 	query := `
         INSERT INTO transactions (id, user_id, source_wallet_id, destination, amount, description, payment_method_id, created_at)
@@ -166,4 +110,18 @@ func (r *transactionRepository) CreateTransaction(transaction model.Transactions
 	}
 
 	return createdTransaction, nil
+}
+
+func (t *transactionRepository) Count(userId string) (int, error) {
+	query := `
+        SELECT COUNT(*) FROM transactions WHERE user_id = $1
+    `
+
+	var count int
+	err := t.db.QueryRow(query, userId).Scan(&count)
+	if err != nil {
+		return 0, err
+	}
+
+	return count, nil
 }

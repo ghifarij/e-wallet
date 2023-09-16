@@ -2,11 +2,9 @@ package controller
 
 import (
 	"Kelompok-2/dompet-online/delivery/middleware"
-	"Kelompok-2/dompet-online/exception"
 	"Kelompok-2/dompet-online/model/dto/req"
 	"Kelompok-2/dompet-online/model/dto/resp"
 	"Kelompok-2/dompet-online/usecase"
-	"fmt"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -40,7 +38,6 @@ func (a *UserController) UsersRoute() {
 	rg.GET("/users/:phoneNumber", a.findByPhoneNumber)
 	rg.GET("/users", a.listHandler)
 	rg.PUT("/users/update-account", a.updateAccount)
-	rg.DELETE("/users/:id", a.deleteById)
 	rg.PATCH("/users/change-password", a.changePasswordHandler)
 	rg.PUT("/users/:userId", a.DisableUserID)
 }
@@ -49,13 +46,15 @@ func (a *UserController) UsersRoute() {
 func (a *UserController) loginHandler(c *gin.Context) {
 	var payload req.AuthLoginRequest
 	if err := c.ShouldBindJSON(&payload); err != nil {
-		exception.ErrorHandling(c, err)
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
 	authResponse, err := a.userUC.Login(payload)
 	if err != nil {
-		exception.ErrorHandling(c, err)
+		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{
+			"message": err.Error(),
+		})
 		return
 	}
 
@@ -72,7 +71,7 @@ func (a *UserController) loginHandler(c *gin.Context) {
 func (a *UserController) registerHandler(c *gin.Context) {
 	var payload req.AuthRegisterRequest
 	if err := c.ShouldBindJSON(&payload); err != nil {
-		c.AbortWithStatusJSON(400, gin.H{
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
 			"message": err.Error(),
 		})
 		return
@@ -80,7 +79,7 @@ func (a *UserController) registerHandler(c *gin.Context) {
 
 	err := a.userUC.Register(payload)
 	if err != nil {
-		c.AbortWithStatusJSON(400, gin.H{
+		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{
 			"message": err.Error(),
 		})
 		return
@@ -96,12 +95,14 @@ func (a *UserController) registerHandler(c *gin.Context) {
 
 // Users
 func (a *UserController) listHandler(c *gin.Context) {
-	users, err := a.userUC.FindAll()
+	users, err := a.userUC.ListsHandler()
 	if err != nil {
-		exception.ErrorHandling(c, err)
+		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{
+			"message": err.Error(),
+		})
 		return
 	}
-	c.JSON(200, users)
+	c.JSON(http.StatusOK, users)
 }
 
 func (a *UserController) findByPhoneNumber(c *gin.Context) {
@@ -109,7 +110,9 @@ func (a *UserController) findByPhoneNumber(c *gin.Context) {
 	user, err := a.userUC.FindByPhoneNumber(phoneNumber)
 
 	if err != nil {
-		exception.ErrorHandling(c, err)
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
+			"message": err.Error(),
+		})
 		return
 	}
 
@@ -119,13 +122,17 @@ func (a *UserController) findByPhoneNumber(c *gin.Context) {
 func (a *UserController) updateAccount(c *gin.Context) {
 	var payload req.UpdateAccountRequest
 	if err := c.ShouldBindJSON(&payload); err != nil {
-		exception.ErrorHandling(c, err)
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
+			"message": err.Error(),
+		})
 		return
 	}
 
 	err := a.userUC.UpdateAccount(payload)
 	if err != nil {
-		exception.ErrorHandling(c, err)
+		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{
+			"message": err.Error(),
+		})
 		return
 	}
 
@@ -137,31 +144,20 @@ func (a *UserController) updateAccount(c *gin.Context) {
 	c.JSON(response.Status, response)
 }
 
-func (a *UserController) deleteById(c *gin.Context) {
-	id := c.Param("id")
-
-	err := a.userUC.DeleteById(id)
-	if err != nil {
-		exception.ErrorHandling(c, err)
-		return
-	}
-
-	message := fmt.Sprintf("successfully delete user with id %s", id)
-	c.JSON(200, gin.H{
-		"message": message,
-	})
-}
-
 func (a *UserController) changePasswordHandler(c *gin.Context) {
 	var payload req.UpdatePasswordRequest
 	if err := c.ShouldBindJSON(&payload); err != nil {
-		exception.ErrorHandling(c, err)
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
+			"message": err.Error(),
+		})
 		return
 	}
 
 	err := a.userUC.ChangePassword(payload)
 	if err != nil {
-		exception.ErrorHandling(c, err)
+		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{
+			"message": err.Error(),
+		})
 		return
 	}
 
@@ -178,7 +174,9 @@ func (a *UserController) DisableUserID(c *gin.Context) {
 	_, err := a.userUC.DisableUserId(DisabeleUserId)
 
 	if err != nil {
-		exception.ErrorHandling(c, err)
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
+			"message": err.Error(),
+		})
 		return
 	}
 	c.JSON(http.StatusOK, gin.H{"message": "successfully disable account"})

@@ -1,6 +1,7 @@
 package controller
 
 import (
+	"Kelompok-2/dompet-online/delivery/middleware"
 	"Kelompok-2/dompet-online/model/dto/req"
 	"Kelompok-2/dompet-online/usecase"
 	"github.com/gin-gonic/gin"
@@ -20,7 +21,7 @@ func NewTransactionController(transactionUC usecase.TransactionUseCase, engine *
 }
 
 func (t *TransactionController) Route() {
-	rg := t.engine.Group("/api/v1")
+	rg := t.engine.Group("/api/v1", middleware.AuthMiddleware())
 
 	rg.GET("/transactions/:userId", t.getTransactionsHistory)
 	rg.PUT("/transactions/transfer", t.transferTransaction)
@@ -33,7 +34,7 @@ func (t *TransactionController) getTransactionsHistory(c *gin.Context) {
 
 	getTransactionhistory, err := t.transactionUC.GetHistoryTransactions(userId)
 	if err != nil {
-		c.AbortWithStatusJSON(400, gin.H{
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
 			"message": err.Error(),
 		})
 		return
@@ -44,13 +45,17 @@ func (t *TransactionController) getTransactionsHistory(c *gin.Context) {
 func (t *TransactionController) transferTransaction(c *gin.Context) {
 	var transferRequest req.TransferRequest
 	if err := c.ShouldBindJSON(&transferRequest); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
+			"message": err.Error(),
+		})
 		return
 	}
 
 	transaction, err := t.transactionUC.Transfer(transferRequest)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{
+			"message": err.Error(),
+		})
 		return
 	}
 
@@ -60,13 +65,17 @@ func (t *TransactionController) transferTransaction(c *gin.Context) {
 func (t *TransactionController) topUpTransaction(c *gin.Context) {
 	var topUpRequest req.TopUpRequest
 	if err := c.ShouldBindJSON(&topUpRequest); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
+			"message": err.Error(),
+		})
 		return
 	}
 
 	transaction, err := t.transactionUC.TopUp(topUpRequest)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{
+			"message": err.Error(),
+		})
 		return
 	}
 
@@ -78,7 +87,7 @@ func (t *TransactionController) CountTransaction(c *gin.Context) {
 
 	countTransaction, err := t.transactionUC.CountTransaction(userId)
 	if err != nil {
-		c.AbortWithStatusJSON(400, gin.H{
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
 			"message": err.Error(),
 		})
 		return

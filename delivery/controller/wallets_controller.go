@@ -23,6 +23,7 @@ func (w *WalletController) Route() {
 	rg := w.engine.Group("/api/v1", middleware.AuthMiddleware())
 
 	rg.GET("/wallets/:userId", w.getWalletByUserId)
+	rg.GET("/wallet/:number", w.getWalletByRekeningUser)
 }
 
 func (w *WalletController) getWalletByUserId(c *gin.Context) {
@@ -30,7 +31,20 @@ func (w *WalletController) getWalletByUserId(c *gin.Context) {
 
 	wallet, err := w.walletUC.GetWalletByUserId(userId)
 	if err != nil {
-		c.AbortWithStatusJSON(400, gin.H{
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
+			"message": err.Error(),
+		})
+		return
+	}
+	c.JSON(http.StatusOK, wallet)
+}
+
+func (w *WalletController) getWalletByRekeningUser(c *gin.Context) {
+	rekeningUserNumber := c.Param(":number")
+
+	wallet, err := w.walletUC.GetWalletByRekeningUser(rekeningUserNumber)
+	if err != nil {
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
 			"message": err.Error(),
 		})
 		return

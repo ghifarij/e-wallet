@@ -9,20 +9,21 @@ type WalletUseCase interface {
 	GetWalletByUserId(userId string) (model.Wallet, error)
 	GetWalletByRekeningUser(number string) (model.Wallet, error)
 	CreateWallet(payload model.Wallet) error
+	UpdateWalletBalance(walletID string, amount int) error
 }
 
 type walletUseCase struct {
-	walletRepository repository.WalletRepository
+	repo repository.WalletRepository
 }
 
-func NewWalletUseCase(walletRepository repository.WalletRepository) WalletUseCase {
+func NewWalletUseCase(repo repository.WalletRepository) WalletUseCase {
 	return &walletUseCase{
-		walletRepository: walletRepository,
+		repo: repo,
 	}
 }
 
 func (w *walletUseCase) GetWalletByUserId(userId string) (model.Wallet, error) {
-	wallet, err := w.walletRepository.FindByUserId(userId)
+	wallet, err := w.repo.FindByUserId(userId)
 	if err != nil {
 		return model.Wallet{}, err
 	}
@@ -30,7 +31,7 @@ func (w *walletUseCase) GetWalletByUserId(userId string) (model.Wallet, error) {
 }
 
 func (w *walletUseCase) GetWalletByRekeningUser(number string) (model.Wallet, error) {
-	wallet, err := w.walletRepository.FindByRekeningUser(number)
+	wallet, err := w.repo.FindByRekeningUser(number)
 	if err != nil {
 		return model.Wallet{}, err
 	}
@@ -38,7 +39,16 @@ func (w *walletUseCase) GetWalletByRekeningUser(number string) (model.Wallet, er
 }
 
 func (w *walletUseCase) CreateWallet(payload model.Wallet) error {
-	err := w.walletRepository.Save(payload)
+	err := w.repo.Save(payload)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (w *walletUseCase) UpdateWalletBalance(walletID string, amount int) error {
+	err := w.repo.UpdateWalletBalance(walletID, amount)
 	if err != nil {
 		return err
 	}

@@ -1,7 +1,6 @@
 package usecase
 
 import (
-	"Kelompok-2/dompet-online/exception"
 	"Kelompok-2/dompet-online/model"
 	"Kelompok-2/dompet-online/model/dto/req"
 	"Kelompok-2/dompet-online/model/dto/resp"
@@ -14,17 +13,19 @@ import (
 )
 
 type UserUseCase interface {
-	FindByUserName(username string) (model.Users, error)
-	FindAll() ([]model.Users, error)
-	Register(payload req.AuthRegisterRequest) error
-	UpdateAccount(payload req.UpdateAccountRequest) error
-	DeleteById(id string) error
-	FindByPhoneNumber(phoneNumber string) (model.Users, error)
+	// Auth
 	Login(payload req.AuthLoginRequest) (resp.LoginResponse, error)
+	Register(payload req.AuthRegisterRequest) error
+	// Users
+	FindByPhoneNumber(phoneNumber string) (model.Users, error)
+	ListsHandler() ([]model.Users, error)
+	UpdateAccount(payload req.UpdateAccountRequest) error
 	ChangePassword(payload req.UpdatePasswordRequest) error
+	DisableUserId(id string) (model.Users, error)
+	// Helper
+	FindByUserName(username string) (model.Users, error)
 	FindById(Id string) (model.Users, error)
 	FindByUsernameEmailPhoneNumber(identifier string) (model.Users, error)
-	DisableUserId(id string) (model.Users, error)
 }
 
 type userUseCase struct {
@@ -41,19 +42,6 @@ func NewUserUseCase(repo repository.UserRepository, walletUc WalletUseCase) User
 
 func (u *userUseCase) FindById(id string) (model.Users, error) {
 	return u.repo.FindById(id)
-}
-
-func (u *userUseCase) DeleteById(id string) error {
-	user, err := u.repo.FindById(id)
-	if err != nil {
-		return err
-	}
-
-	err = u.repo.DeleteById(user.Id)
-	if err != nil {
-		return fmt.Errorf("failed to delete users: %v", err)
-	}
-	return nil
 }
 
 // UpdateUsername implements UserUseCase.
@@ -77,7 +65,7 @@ func (u *userUseCase) FindByUserName(username string) (model.Users, error) {
 }
 
 // FindAll implements UserUseCase.
-func (u *userUseCase) FindAll() ([]model.Users, error) {
+func (u *userUseCase) ListsHandler() ([]model.Users, error) {
 	users, err := u.repo.FindAll()
 	if err != nil {
 		return nil, fmt.Errorf("failed to get all data: %v", err)
@@ -141,12 +129,11 @@ func (u *userUseCase) Register(payload req.AuthRegisterRequest) error {
 func (u *userUseCase) FindByPhoneNumber(phoneNumber string) (model.Users, error) {
 	byPhoneNumber, err := u.repo.FindByPhoneNumber(phoneNumber)
 	if err != nil {
-		return model.Users{}, exception.NewNotFoundError(err.Error())
+		return model.Users{}, err
 	}
 	return byPhoneNumber, nil
 }
 
-// Login implements UserUseCase.
 // Login implements UserUseCase.
 func (u *userUseCase) Login(payload req.AuthLoginRequest) (resp.LoginResponse, error) {
 	// Validasi payload menggunakan struct
@@ -193,26 +180,22 @@ func (u *userUseCase) Login(payload req.AuthLoginRequest) (resp.LoginResponse, e
 
 // ChangePassword implements UserUseCase.
 func (u *userUseCase) ChangePassword(payload req.UpdatePasswordRequest) error {
-	// Validasi payload menggunakan struct
 	validate := validator.New()
 	err := validate.Struct(payload)
 	if err != nil {
 		return err
 	}
 
-	// read Username di db
 	user, err := u.repo.FindByUserName(payload.UserName)
 	if err != nil {
 		return err
 	}
 
-	// Validasi password saat ini
 	err = security.VerifyPassword(user.Password, payload.CurrentPassword)
 	if err != nil {
 		return fmt.Errorf("update password failed: invalid current password")
 	}
 
-	// Hash new password and password confirmation
 	hashedNewPassword, err := security.HashPassword(payload.NewPassword)
 	if err != nil {
 		return err
@@ -223,7 +206,6 @@ func (u *userUseCase) ChangePassword(payload req.UpdatePasswordRequest) error {
 		return err
 	}
 
-	// update password dan password confirm
 	err = u.repo.UpdatePassword(user.UserName, hashedNewPassword, hashedNewPasswordConfirm)
 	if err != nil {
 		return fmt.Errorf("failed save user: %v", err.Error())
