@@ -84,7 +84,7 @@ func (u *userRepository) UpdateAccount(payload req.UpdateAccountRequest) error {
 }
 
 func (u *userRepository) FindAll() ([]model.Users, error) {
-	rows, err := u.db.Query("SELECT id, full_name, user_name, email, phone_number, password, password_confirm, created_at, updated_at, deleted_at FROM users")
+	rows, err := u.db.Query("SELECT id, full_name, user_name, email, phone_number, password, password_confirm, is_active, created_at, updated_at, deleted_at FROM users")
 	if err != nil {
 		return nil, err
 	}
@@ -99,6 +99,7 @@ func (u *userRepository) FindAll() ([]model.Users, error) {
 			&user.PhoneNumber,
 			&user.Password,
 			&user.PasswordConfirm,
+			&user.IsActive,
 			&user.CreatedAt,
 			&user.UpdatedAt,
 			&user.DeleteAt,
@@ -121,7 +122,7 @@ func (u *userRepository) DeleteById(id string) error {
 }
 
 func (u *userRepository) FindByPhoneNumber(phoneNumber string) (model.Users, error) {
-	row := u.db.QueryRow("SELECT id, full_name, user_name, email, phone_number, password, password_confirm, created_at, updated_at, deleted_at FROM users WHERE phone_number = $1", phoneNumber)
+	row := u.db.QueryRow("SELECT id, full_name, user_name, email, phone_number, password, password_confirm, is_active, created_at, updated_at, deleted_at FROM users WHERE phone_number = $1", phoneNumber)
 	var user model.Users
 	err := row.Scan(
 		&user.Id,
@@ -131,6 +132,7 @@ func (u *userRepository) FindByPhoneNumber(phoneNumber string) (model.Users, err
 		&user.PhoneNumber,
 		&user.Password,
 		&user.PasswordConfirm,
+		&user.IsActive,
 		&user.CreatedAt,
 		&user.UpdatedAt,
 		&user.DeleteAt,

@@ -45,11 +45,13 @@ func (w *walletRepository) FindByRekeningUser(number string) (model.Wallet, erro
 }
 
 func (w *walletRepository) Save(wallet model.Wallet) error {
-	_, err := w.db.Exec(`INSERT INTO wallets (id, user_id, rekening_user, balance) VALUES($1, $2, $3, $4)`,
+	_, err := w.db.Exec(`INSERT INTO wallets (id, user_id, rekening_user, balance, created_at, updated_at) VALUES($1, $2, $3, $4, $5, $6)`,
 		wallet.Id,
 		wallet.UserId,
 		wallet.RekeningUser,
 		wallet.Balance,
+		wallet.CreatedAt,
+		wallet.UpdatedAt,
 	)
 	if err != nil {
 		return err

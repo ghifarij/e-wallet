@@ -42,7 +42,6 @@ func (a *UserController) UsersRoute() {
 	rg.PUT("/users/update-account", a.updateAccount)
 	rg.DELETE("/users/:id", a.deleteById)
 	rg.PATCH("/users/change-password", a.changePasswordHandler)
-	rg.GET("/wallets/:userId", a.getWalletByUserId)
 	rg.PUT("/users/:userId", a.DisableUserID)
 }
 
@@ -174,19 +173,6 @@ func (a *UserController) changePasswordHandler(c *gin.Context) {
 	c.JSON(response.Status, response)
 }
 
-func (a *UserController) getWalletByUserId(c *gin.Context) {
-	userId := c.Param("userId")
-
-	wallet, err := a.walletUC.GetWalletByUserId(userId)
-	if err != nil {
-		c.AbortWithStatusJSON(400, gin.H{
-			"message": err.Error(),
-		})
-		return
-	}
-	c.JSON(http.StatusOK, wallet)
-}
-
 func (a *UserController) DisableUserID(c *gin.Context) {
 	DisabeleUserId := c.Param("userId")
 	_, err := a.userUC.DisableUserId(DisabeleUserId)
@@ -195,5 +181,5 @@ func (a *UserController) DisableUserID(c *gin.Context) {
 		exception.ErrorHandling(c, err)
 		return
 	}
-	c.JSON(http.StatusOK, gin.H{"message": "Akun berhasil dinonaktifkan"})
+	c.JSON(http.StatusOK, gin.H{"message": "successfully disable account"})
 }
