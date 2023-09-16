@@ -92,8 +92,13 @@ func (t *transactionUseCase) Transfer(payload req.TransferRequest) (model.Transa
 }
 
 func (t *transactionUseCase) CountTransaction(userId string) (int, error) {
-	//TODO implement me
-	panic("implement me")
+	count, err := t.repo.Count(userId)
+	if err != nil {
+		return 0, err
+	}
+
+	return count, nil
+
 }
 
 func NewTransactionUseCase(repo repository.TransactionRepository) TransactionUseCase {

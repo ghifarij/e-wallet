@@ -268,3 +268,8 @@ time="2023-09-16T16:42:08+07:00" level=info msg="{2023-09-16 16:38:55.406500633 
 time="2023-09-16T18:24:59+07:00" level=warning msg="{2023-09-16 18:23:43.083209726 +0700 WIB m=+0.007169089 1m16.689135948s 400 ::1 GET /api/v1/transactions/5d183fc2-6481-4390-b55b-5a8b269930f6 PostmanRuntime/7.32.3}"
 time="2023-09-16T18:45:08+07:00" level=warning msg="{2023-09-16 18:44:37.963359572 +0700 WIB m=+0.005118011 30.185024206s 400 ::1 GET /api/v1/transactions/5d183fc2-6481-4390-b55b-5a8b269930f6 PostmanRuntime/7.32.3}"
 time="2023-09-16T18:45:25+07:00" level=info msg="{2023-09-16 18:45:21.57154046 +0700 WIB m=+0.008692358 3.584698854s 200 ::1 GET /api/v1/transactions/5d183fc2-6481-4390-b55b-5a8b269930f6 PostmanRuntime/7.32.3}"
+time="2023-09-16T18:49:10+07:00" level=warning msg="{2023-09-16 18:49:04.266319414 +0700 WIB m=+0.005152842 6.299329225s 401 ::1 GET /api/v1/wallets/bd62da8f-f5df-421f-bfdf-d67c81e704fb PostmanRuntime/7.32.3}"
+time="2023-09-16T18:49:23+07:00" level=info msg="{2023-09-16 18:49:04.266319414 +0700 WIB m=+0.005152842 19.28173261s 200 ::1 POST /api/v1/auth/login PostmanRuntime/7.32.3}"
+time="2023-09-16T18:49:35+07:00" level=warning msg="{2023-09-16 18:49:04.266319414 +0700 WIB m=+0.005152842 30.936483641s 400 ::1 GET /api/v1/wallets/bd62da8f-f5df-421f-bfdf-d67c81e704fb PostmanRuntime/7.32.3}"
+time="2023-09-16T18:49:59+07:00" level=info msg="{2023-09-16 18:49:04.266319414 +0700 WIB m=+0.005152842 55.176490568s 200 ::1 GET /api/v1/wallets/5d183fc2-6481-4390-b55b-5a8b269930f6 PostmanRuntime/7.32.3}"
+time="2023-09-16T18:58:41+07:00" level=info msg="{2023-09-16 18:57:38.968525697 +0700 WIB m=+0.005004131 1m2.8028515s 200 ::1 GET /api/v1/transactions/count/5d183fc2-6481-4390-b55b-5a8b269930f6 PostmanRuntime/7.32.3}"

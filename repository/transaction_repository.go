@@ -80,16 +80,14 @@ func (t *transactionRepository) FindAll(userId string) ([]resp.GetTransactionsRe
 }
 
 func (t *transactionRepository) Count(userId string) (int, error) {
-	rows, err := t.db.Query("SELECT COUNT(*) FROM transactions")
-	if err != nil {
-		return 0, err
-	}
+	query := `
+        SELECT COUNT(*) FROM transactions WHERE user_id = $1
+    `
 
 	var count int
-	for rows.Next() {
-		if err := rows.Scan(&count); err != nil {
-			return 0, err
-		}
+	err := t.db.QueryRow(query, userId).Scan(&count)
+	if err != nil {
+		return 0, err
 	}
 
 	return count, nil

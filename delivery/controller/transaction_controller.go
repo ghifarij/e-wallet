@@ -25,6 +25,7 @@ func (t *TransactionController) Route() {
 	rg.GET("/transactions/:userId", t.getTransactionsHistory)
 	rg.PUT("/transactions/transfer", t.transferTransaction)
 	rg.PUT("/transactions/topUp", t.topUpTransaction)
+	rg.GET("/transactions/count/:userId", t.CountTransaction)
 }
 
 func (t *TransactionController) getTransactionsHistory(c *gin.Context) {
@@ -70,4 +71,17 @@ func (t *TransactionController) topUpTransaction(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, transaction)
+}
+
+func (t *TransactionController) CountTransaction(c *gin.Context) {
+	userId := c.Param("userId")
+
+	countTransaction, err := t.transactionUC.CountTransaction(userId)
+	if err != nil {
+		c.AbortWithStatusJSON(400, gin.H{
+			"message": err.Error(),
+		})
+		return
+	}
+	c.JSON(http.StatusOK, countTransaction)
 }
