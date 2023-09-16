@@ -8,10 +8,10 @@ import (
 
 type TransactionRepository interface {
 	FindAll(userId string) ([]resp.GetTransactionsResponse, error)
-	Save(transaction model.Transactions) error
+	//Save(transaction model.Transactions) error
 	Count(userId string) (int, error)
 	FindWalletByUserID(userID string) (model.Wallet, error)
-	UpdateWalletBalance(wallet model.Wallet) error
+	UpdateWalletBalance(walletID string, amount int) error
 	FindWalletByRekening(rekening string) (model.Wallet, error)
 	CreateTransaction(transaction model.Transactions) (model.Transactions, error)
 }
@@ -26,25 +26,25 @@ func NewTransactionRepository(db *sql.DB) TransactionRepository {
 	}
 }
 
-func (t *transactionRepository) Save(transaction model.Transactions) error {
-	tx, err := t.db.Begin()
-	if err != nil {
-		return err
-	}
-	_, err = tx.Exec(`INSERT INTO transaction(id, source_of_funds_id, user_id, destination, amount, description, created_at) VALUES ($1, $2, $3, $4, $5, $6, $7)`,
-		transaction.Id,
-		transaction.SourceOfFoundId,
-		transaction.UserId,
-		transaction.Destination,
-		transaction.Amount,
-		transaction.Description,
-		transaction.CreateAt,
-	)
-	if err := tx.Commit(); err != nil {
-		return err
-	}
-	return nil
-}
+//func (t *transactionRepository) Save(transaction model.Transactions) error {
+//	tx, err := t.db.Begin()
+//	if err != nil {
+//		return err
+//	}
+//	_, err = tx.Exec(`INSERT INTO transaction(id, source_of_funds_id, user_id, destination, amount, description, created_at) VALUES ($1, $2, $3, $4, $5, $6, $7)`,
+//		transaction.Id,
+//		transaction.SourceOfFoundId,
+//		transaction.UserId,
+//		transaction.Destination,
+//		transaction.Amount,
+//		transaction.Description,
+//		transaction.CreateAt,
+//	)
+//	if err := tx.Commit(); err != nil {
+//		return err
+//	}
+//	return nil
+//}
 
 func (t *transactionRepository) FindAll(userId string) ([]resp.GetTransactionsResponse, error) {
 	var getTransactionsResponses []resp.GetTransactionsResponse
@@ -130,10 +130,14 @@ func (r *transactionRepository) FindWalletByUserID(userID string) (model.Wallet,
 	return wallet, nil
 }
 
-func (r *transactionRepository) UpdateWalletBalance(wallet model.Wallet) error {
-	query := "UPDATE wallets SET balance = $1 WHERE id = $2"
+func (r *transactionRepository) UpdateWalletBalance(walletID string, amount int) error {
+	query := `
+        UPDATE wallets
+        SET balance = balance + $1
+        WHERE id = $2
+    `
 
-	_, err := r.db.Exec(query, wallet.Balance, wallet.Id)
+	_, err := r.db.Exec(query, amount, walletID)
 	if err != nil {
 		return err
 	}
@@ -155,23 +159,36 @@ func (r *transactionRepository) FindWalletByRekening(rekening string) (model.Wal
 
 func (r *transactionRepository) CreateTransaction(transaction model.Transactions) (model.Transactions, error) {
 	query := `
-        INSERT INTO transactions (id, source_of_funds_id, user_id, destination, amount, description, created_at)
-        VALUES ($1, $2, $3, $4, $5, $6, $7)
+        INSERT INTO transactions (id, user_id, source_wallet_id, destination, amount, description, payment_method_id, created_at)
+        VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+        RETURNING id, user_id, source_wallet_id, destination, amount, description, payment_method_id, created_at
     `
-	_, err := r.db.Exec(
+
+	var createdTransaction model.Transactions
+	err := r.db.QueryRow(
 		query,
 		transaction.Id,
-		transaction.SourceOfFoundId,
 		transaction.UserId,
+		transaction.SourceWalletID,
 		transaction.Destination,
 		transaction.Amount,
 		transaction.Description,
+		transaction.PaymentMethodID,
 		transaction.CreateAt,
+	).Scan(
+		&createdTransaction.Id,
+		&createdTransaction.UserId,
+		&createdTransaction.SourceWalletID,
+		&createdTransaction.Destination,
+		&createdTransaction.Amount,
+		&createdTransaction.Description,
+		&createdTransaction.PaymentMethodID,
+		&createdTransaction.CreateAt,
 	)
+
 	if err != nil {
 		return model.Transactions{}, err
 	}
 
-	// Return the created transaction
-	return transaction, nil
+	return createdTransaction, nil
 }

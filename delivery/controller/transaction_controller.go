@@ -24,6 +24,7 @@ func (t *TransactionController) Route() {
 
 	rg.GET("/transactions/:userId", t.getTransactionsHistory)
 	rg.PUT("/transactions/transfer", t.transferTransaction)
+	rg.PUT("/transactions/topUp", t.topUpTransaction)
 }
 
 func (t *TransactionController) getTransactionsHistory(c *gin.Context) {

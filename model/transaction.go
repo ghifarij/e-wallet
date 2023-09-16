@@ -4,8 +4,9 @@ import "time"
 
 type Transactions struct {
 	Id              string
-	SourceOfFoundId string
+	SourceWalletID  string
 	UserId          string
+	PaymentMethodID string
 	Destination     string
 	Amount          int
 	Description     string
