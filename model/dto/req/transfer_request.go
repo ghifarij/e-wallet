@@ -1,8 +1,10 @@
 package req
 
 type TransferRequest struct {
-	UserId      string `json:"user_id" binding:"required"`
-	Destination string `json:"destination" binding:"required"`
-	Amount      int    `json:"amount" binding:"required"`
-	Description string `json:"description"`
+	UserId              string `json:"user_id"`
+	SourceWalletID      string `json:"source_wallet_id"`
+	DestinationWalletID string `json:"destination_wallet_id"`
+	Amount              int    `json:"amount"`
+	Description         string `json:"description"`
+	PaymentMethodID     string `json:"payment_method_id"`
 }

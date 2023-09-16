@@ -58,8 +58,37 @@ func (t *transactionUseCase) TopUp(payload req.TopUpRequest) (model.Transactions
 }
 
 func (t *transactionUseCase) Transfer(payload req.TransferRequest) (model.Transactions, error) {
-	//TODO implement me
-	panic("implement me")
+
+	// Create a new transaction record
+	transaction := model.Transactions{
+		Id:              common.GenerateID(),
+		UserId:          payload.UserId,
+		SourceWalletID:  payload.SourceWalletID,
+		Destination:     payload.DestinationWalletID,
+		Amount:          payload.Amount,
+		Description:     payload.Description,
+		PaymentMethodID: payload.PaymentMethodID,
+	}
+
+	// Create the transaction in the database
+	createdTransaction, err := t.repo.CreateTransaction(transaction)
+	if err != nil {
+		return model.Transactions{}, err
+	}
+
+	// Update the source wallet balance (subtract the transfer amount)
+	err = t.repo.UpdateWalletBalance(payload.SourceWalletID, -payload.Amount)
+	if err != nil {
+		return model.Transactions{}, err
+	}
+
+	// Update the destination wallet balance (add the transfer amount)
+	err = t.repo.UpdateWalletBalance(payload.DestinationWalletID, payload.Amount)
+	if err != nil {
+		return model.Transactions{}, err
+	}
+
+	return createdTransaction, nil
 }
 
 func (t *transactionUseCase) CountTransaction(userId string) (int, error) {
