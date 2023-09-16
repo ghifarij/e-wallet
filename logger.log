@@ -265,3 +265,6 @@ time="2023-09-16T16:18:12+07:00" level=info msg="{2023-09-16 16:07:10.322662513 
 time="2023-09-16T16:21:25+07:00" level=error msg="{2023-09-16 16:21:19.132229855 +0700 WIB m=+0.005298138 5.927358295s 500 ::1 PUT /api/v1/transactions/topUp PostmanRuntime/7.32.3}"
 time="2023-09-16T16:24:21+07:00" level=info msg="{2023-09-16 16:24:16.824361711 +0700 WIB m=+0.004955562 4.340056461s 200 ::1 PUT /api/v1/transactions/topUp PostmanRuntime/7.32.3}"
 time="2023-09-16T16:42:08+07:00" level=info msg="{2023-09-16 16:38:55.406500633 +0700 WIB m=+0.005290533 3m12.680370331s 200 ::1 PUT /api/v1/transactions/transfer PostmanRuntime/7.32.3}"
+time="2023-09-16T18:24:59+07:00" level=warning msg="{2023-09-16 18:23:43.083209726 +0700 WIB m=+0.007169089 1m16.689135948s 400 ::1 GET /api/v1/transactions/5d183fc2-6481-4390-b55b-5a8b269930f6 PostmanRuntime/7.32.3}"
+time="2023-09-16T18:45:08+07:00" level=warning msg="{2023-09-16 18:44:37.963359572 +0700 WIB m=+0.005118011 30.185024206s 400 ::1 GET /api/v1/transactions/5d183fc2-6481-4390-b55b-5a8b269930f6 PostmanRuntime/7.32.3}"
+time="2023-09-16T18:45:25+07:00" level=info msg="{2023-09-16 18:45:21.57154046 +0700 WIB m=+0.008692358 3.584698854s 200 ::1 GET /api/v1/transactions/5d183fc2-6481-4390-b55b-5a8b269930f6 PostmanRuntime/7.32.3}"
