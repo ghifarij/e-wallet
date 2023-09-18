@@ -13,5 +13,5 @@ type Users struct {
 	IsActive        bool
 	CreatedAt       time.Time
 	UpdatedAt       time.Time
-	DeleteAt        time.Time
+	DisableAt       time.Time
 }

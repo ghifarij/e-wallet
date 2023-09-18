@@ -292,19 +292,10 @@ const docTemplate = `{
                 "password"
             ],
             "properties": {
-                "email": {
-                    "type": "string"
-                },
-                "login_option": {
-                    "type": "string"
+                "loginOption": {
+                    "$ref": "#/definitions/req.loginOption"
                 },
                 "password": {
-                    "type": "string"
-                },
-                "phoneNumber": {
-                    "type": "string"
-                },
-                "userName": {
                     "type": "string"
                 }
             }
@@ -401,6 +392,20 @@ const docTemplate = `{
                     "type": "string",
                     "maxLength": 50,
                     "minLength": 3
+                }
+            }
+        },
+        "req.loginOption": {
+            "type": "object",
+            "properties": {
+                "email": {
+                    "type": "string"
+                },
+                "phoneNumber": {
+                    "type": "string"
+                },
+                "userName": {
+                    "type": "string"
                 }
             }
         },

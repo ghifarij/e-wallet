@@ -4,6 +4,7 @@ import (
 	"Kelompok-2/dompet-online/model"
 	"Kelompok-2/dompet-online/model/dto/req"
 	"database/sql"
+	"time"
 )
 
 type UserRepository interface {
@@ -15,7 +16,7 @@ type UserRepository interface {
 	UpdatePassword(username string, newPassword string, newPasswordConfirm string) error
 	UpdateAccount(payload req.UpdateAccountRequest) error
 	FindAll() ([]model.Users, error)
-	DisableUserId(id string) (model.Users, error)
+	DisableUserId(id string, disableTime time.Time) (model.Users, error)
 }
 
 type userRepository struct {
@@ -30,7 +31,7 @@ func NewUserRepository(db *sql.DB) UserRepository {
 
 // Save implements UserRepository.
 func (u *userRepository) Save(user model.Users) error {
-	_, err := u.db.Exec(`INSERT INTO users(id, full_name, user_name, email, phone_number, password, password_confirm, is_active, created_at, updated_at, deleted_at) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)`,
+	_, err := u.db.Exec(`INSERT INTO users(id, full_name, user_name, email, phone_number, password, password_confirm, is_active, created_at, updated_at, disable_at) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)`,
 		user.Id,
 		user.FullName,
 		user.UserName,
@@ -41,7 +42,7 @@ func (u *userRepository) Save(user model.Users) error {
 		user.IsActive,
 		user.CreatedAt,
 		user.UpdatedAt,
-		user.DeleteAt,
+		user.DisableAt,
 	)
 	if err != nil {
 		return err
@@ -83,7 +84,7 @@ func (u *userRepository) UpdateAccount(payload req.UpdateAccountRequest) error {
 }
 
 func (u *userRepository) FindAll() ([]model.Users, error) {
-	rows, err := u.db.Query("SELECT id, full_name, user_name, email, phone_number, password, password_confirm, is_active, created_at, updated_at, deleted_at FROM users")
+	rows, err := u.db.Query("SELECT id, full_name, user_name, email, phone_number, password, password_confirm, is_active, created_at, updated_at, disable_at FROM users")
 	if err != nil {
 		return nil, err
 	}
@@ -101,7 +102,7 @@ func (u *userRepository) FindAll() ([]model.Users, error) {
 			&user.IsActive,
 			&user.CreatedAt,
 			&user.UpdatedAt,
-			&user.DeleteAt,
+			&user.DisableAt,
 		)
 		if err != nil {
 			return nil, err
@@ -112,7 +113,7 @@ func (u *userRepository) FindAll() ([]model.Users, error) {
 }
 
 func (u *userRepository) FindByPhoneNumber(phoneNumber string) (model.Users, error) {
-	row := u.db.QueryRow("SELECT id, full_name, user_name, email, phone_number, password, password_confirm, is_active, created_at, updated_at, deleted_at FROM users WHERE phone_number = $1", phoneNumber)
+	row := u.db.QueryRow("SELECT id, full_name, user_name, email, phone_number, password, password_confirm, is_active, created_at, updated_at, disable_at FROM users WHERE phone_number = $1", phoneNumber)
 	var user model.Users
 	err := row.Scan(
 		&user.Id,
@@ -125,7 +126,7 @@ func (u *userRepository) FindByPhoneNumber(phoneNumber string) (model.Users, err
 		&user.IsActive,
 		&user.CreatedAt,
 		&user.UpdatedAt,
-		&user.DeleteAt,
+		&user.DisableAt,
 	)
 	if err != nil {
 		return model.Users{}, err
@@ -145,7 +146,7 @@ func (u *userRepository) FindById(id string) (model.Users, error) {
 }
 
 func (u *userRepository) FindByUsernameEmailPhoneNumber(identifier string) (model.Users, error) {
-	row := u.db.QueryRow("SELECT id, full_name, user_name, email, phone_number, password, password_confirm, is_active, created_at, updated_at, deleted_at FROM users WHERE user_name = $1 OR email = $2 OR phone_number = $3", identifier, identifier, identifier)
+	row := u.db.QueryRow("SELECT id, full_name, user_name, email, phone_number, password, password_confirm, is_active, created_at, updated_at, disable_at FROM users WHERE user_name = $1 OR email = $2 OR phone_number = $3", identifier, identifier, identifier)
 	var user model.Users
 	err := row.Scan(
 		&user.Id,
@@ -158,7 +159,7 @@ func (u *userRepository) FindByUsernameEmailPhoneNumber(identifier string) (mode
 		&user.IsActive,
 		&user.CreatedAt,
 		&user.UpdatedAt,
-		&user.DeleteAt,
+		&user.DisableAt,
 	)
 	if err != nil {
 		return model.Users{}, err
@@ -166,8 +167,8 @@ func (u *userRepository) FindByUsernameEmailPhoneNumber(identifier string) (mode
 	return user, nil
 }
 
-func (u *userRepository) DisableUserId(id string) (model.Users, error) {
-	_, err := u.db.Exec("UPDATE users SET is_active = false WHERE id = $1", id)
+func (u *userRepository) DisableUserId(id string, disableTime time.Time) (model.Users, error) {
+	_, err := u.db.Exec("UPDATE users SET is_active = false, disable_at = $2 WHERE id = $1", id, disableTime)
 	if err != nil {
 		return model.Users{}, err
 	}

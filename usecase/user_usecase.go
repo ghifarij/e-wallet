@@ -146,17 +146,16 @@ func (u *userUseCase) Login(payload req.AuthLoginRequest) (resp.LoginResponse, e
 	var user model.Users
 
 	// Determine which identifier is provided based on the LoginOption field
-	switch payload.LoginOption {
-	case "email":
-		user, err = u.FindByUsernameEmailPhoneNumber(payload.Email)
-	case "phoneNumber":
-		user, err = u.FindByUsernameEmailPhoneNumber(payload.PhoneNumber)
-	case "userName":
-		user, err = u.FindByUsernameEmailPhoneNumber(payload.UserName)
+	switch {
+	case payload.LoginOption.Email != "":
+		user, err = u.FindByUsernameEmailPhoneNumber(payload.LoginOption.Email)
+	case payload.LoginOption.PhoneNumber != "":
+		user, err = u.FindByUsernameEmailPhoneNumber(payload.LoginOption.PhoneNumber)
+	case payload.LoginOption.UserName != "":
+		user, err = u.FindByUsernameEmailPhoneNumber(payload.LoginOption.UserName)
 	default:
 		return resp.LoginResponse{}, fmt.Errorf("invalid login request: no identifier provided")
 	}
-
 	if err != nil {
 		return resp.LoginResponse{}, fmt.Errorf("unauthorized: invalid credential")
 	}
@@ -233,7 +232,12 @@ func (u *userUseCase) DisableAccount(id string) (model.Users, error) {
 		return model.Users{}, err
 	}
 
-	_, err = u.repo.DisableUserId(user.Id)
+	disableTime := time.Now()
+
+	// Update disable_at dalam struktur user
+	user.DisableAt = disableTime
+
+	_, err = u.repo.DisableUserId(user.Id, user.DisableAt)
 	if err != nil {
 		return model.Users{}, fmt.Errorf("failed to disable users: %v", err)
 	}

@@ -27,15 +27,9 @@ definitions:
     type: object
   req.AuthLoginRequest:
     properties:
-      email:
-        type: string
-      login_option:
-        type: string
+      loginOption:
+        $ref: '#/definitions/req.loginOption'
       password:
-        type: string
-      phoneNumber:
-        type: string
-      userName:
         type: string
     required:
     - password
@@ -110,6 +104,15 @@ definitions:
     - newPassword
     - newPasswordConfirm
     - userName
+    type: object
+  req.loginOption:
+    properties:
+      email:
+        type: string
+      phoneNumber:
+        type: string
+      userName:
+        type: string
     type: object
   resp.DisableAccountResponse:
     properties:
