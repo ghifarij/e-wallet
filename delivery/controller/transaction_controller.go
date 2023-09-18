@@ -107,6 +107,14 @@ func (t *TransactionController) topUpTransaction(c *gin.Context) {
 	c.JSON(http.StatusOK, transaction)
 }
 
+// TransactionController godoc
+// @Tags         Transaction
+// @Accept       json
+// @Produce      json
+// @Security	 Bearer
+// @Param        userId path string true "Count History Transaction"
+// @Success      200
+// @Router       /transactions/count/{userId} [get]
 func (t *TransactionController) CountTransaction(c *gin.Context) {
 	userId := c.Param("userId")
 
