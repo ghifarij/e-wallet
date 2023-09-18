@@ -80,6 +80,41 @@ const docTemplate = `{
                 }
             }
         },
+        "/transactions/{userId}": {
+            "get": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Transaction"
+                ],
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Get History Transaction",
+                        "name": "userId",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/resp.GetTransactionsResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/users": {
             "get": {
                 "security": [
@@ -478,6 +513,35 @@ const docTemplate = `{
                 }
             }
         },
+        "resp.GetTransactionsResponse": {
+            "type": "object",
+            "properties": {
+                "amount": {
+                    "type": "integer"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "destination": {
+                    "type": "string"
+                },
+                "id_transaction": {
+                    "type": "string"
+                },
+                "paymentMethod": {
+                    "$ref": "#/definitions/resp.paymentMethod"
+                },
+                "time_of_transaction": {
+                    "type": "string"
+                },
+                "user": {
+                    "$ref": "#/definitions/resp.user"
+                },
+                "wallet": {
+                    "$ref": "#/definitions/resp.wallet"
+                }
+            }
+        },
         "resp.LoginResponse": {
             "type": "object",
             "properties": {
@@ -525,6 +589,36 @@ const docTemplate = `{
                 },
                 "status": {
                     "type": "integer"
+                }
+            }
+        },
+        "resp.paymentMethod": {
+            "type": "object",
+            "properties": {
+                "description": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                }
+            }
+        },
+        "resp.user": {
+            "type": "object",
+            "properties": {
+                "user_name": {
+                    "type": "string"
+                }
+            }
+        },
+        "resp.wallet": {
+            "type": "object",
+            "properties": {
+                "balance": {
+                    "type": "integer"
+                },
+                "rekening_user": {
+                    "type": "string"
                 }
             }
         }

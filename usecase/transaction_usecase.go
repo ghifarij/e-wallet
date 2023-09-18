@@ -10,7 +10,7 @@ import (
 )
 
 type TransactionUseCase interface {
-	GetHistoryTransactions(userId string) ([]resp.GetTransactionsResponse, error)
+	GetHistoriesTransactions(userId string) ([]resp.GetTransactionsResponse, error)
 	TopUp(payload req.TopUpRequest) (model.Transactions, error)
 	Transfer(payload req.TransferRequest) (model.Transactions, error)
 	CountTransaction(userId string) (int, error)
@@ -25,7 +25,7 @@ func NewTransactionUseCase(repo repository.TransactionRepository, walletUC Walle
 	return &transactionUseCase{repo: repo, walletUC: walletUC}
 }
 
-func (t *transactionUseCase) GetHistoryTransactions(userId string) ([]resp.GetTransactionsResponse, error) {
+func (t *transactionUseCase) GetHistoriesTransactions(userId string) ([]resp.GetTransactionsResponse, error) {
 	getTransactionsResponses, err := t.repo.FindAll(userId)
 	if err != nil {
 		return []resp.GetTransactionsResponse{}, err

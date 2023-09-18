@@ -136,6 +136,25 @@ definitions:
       status:
         type: integer
     type: object
+  resp.GetTransactionsResponse:
+    properties:
+      amount:
+        type: integer
+      description:
+        type: string
+      destination:
+        type: string
+      id_transaction:
+        type: string
+      paymentMethod:
+        $ref: '#/definitions/resp.paymentMethod'
+      time_of_transaction:
+        type: string
+      user:
+        $ref: '#/definitions/resp.user'
+      wallet:
+        $ref: '#/definitions/resp.wallet'
+    type: object
   resp.LoginResponse:
     properties:
       message:
@@ -167,6 +186,25 @@ definitions:
         type: string
       status:
         type: integer
+    type: object
+  resp.paymentMethod:
+    properties:
+      description:
+        type: string
+      name:
+        type: string
+    type: object
+  resp.user:
+    properties:
+      user_name:
+        type: string
+    type: object
+  resp.wallet:
+    properties:
+      balance:
+        type: integer
+      rekening_user:
+        type: string
     type: object
 info:
   contact: {}
@@ -213,6 +251,27 @@ paths:
             $ref: '#/definitions/resp.RegisterResponse'
       tags:
       - Auth
+  /transactions/{userId}:
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - description: Get History Transaction
+        in: path
+        name: userId
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/resp.GetTransactionsResponse'
+      security:
+      - Bearer: []
+      tags:
+      - Transaction
   /users:
     get:
       consumes:

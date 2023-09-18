@@ -3,6 +3,7 @@ package controller
 import (
 	"Kelompok-2/dompet-online/delivery/middleware"
 	"Kelompok-2/dompet-online/model/dto/req"
+	"Kelompok-2/dompet-online/model/dto/resp"
 	"Kelompok-2/dompet-online/usecase"
 	"github.com/gin-gonic/gin"
 	"net/http"
@@ -23,23 +24,51 @@ func NewTransactionController(transactionUC usecase.TransactionUseCase, engine *
 func (t *TransactionController) Route() {
 	rg := t.engine.Group("/api/v1", middleware.AuthMiddleware())
 
-	rg.GET("/transactions/:userId", t.getTransactionsHistory)
+	rg.GET("/transactions/:userId", t.getHistoriesTransactionsHandler)
 	rg.PUT("/transactions/transfer", t.transferTransaction)
 	rg.PUT("/transactions/topUp", t.topUpTransaction)
 	rg.GET("/transactions/count/:userId", t.CountTransaction)
 }
 
-func (t *TransactionController) getTransactionsHistory(c *gin.Context) {
+// TransactionController godoc
+// @Tags         Transaction
+// @Accept       json
+// @Produce      json
+// @Security     Bearer
+// @Param        userId path string true "Get History Transaction"
+// @Success      200  {object}  resp.GetTransactionsResponse
+// @Router       /transactions/{userId} [get]
+func (t *TransactionController) getHistoriesTransactionsHandler(c *gin.Context) {
 	userId := c.Param("userId")
 
-	getTransactionhistory, err := t.transactionUC.GetHistoryTransactions(userId)
+	getHistoryTransaction, err := t.transactionUC.GetHistoriesTransactions(userId)
 	if err != nil {
 		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
 			"message": err.Error(),
 		})
 		return
 	}
-	c.JSON(http.StatusOK, getTransactionhistory)
+
+	// Create a response object
+	var response []resp.GetTransactionsResponse
+
+	// Populate the response object with data from getHistoryTransaction
+	for _, transaction := range getHistoryTransaction {
+		transactionResponse := resp.GetTransactionsResponse{
+			Id:            transaction.Id,
+			Destination:   transaction.Destination,
+			Amount:        transaction.Amount,
+			Description:   transaction.Description,
+			CreateAt:      transaction.CreateAt,
+			User:          transaction.User,
+			Wallet:        transaction.Wallet,
+			PaymentMethod: transaction.PaymentMethod,
+		}
+
+		response = append(response, transactionResponse)
+	}
+
+	c.JSON(http.StatusOK, response)
 }
 
 func (t *TransactionController) transferTransaction(c *gin.Context) {
