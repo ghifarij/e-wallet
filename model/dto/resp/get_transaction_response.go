@@ -5,14 +5,14 @@ import (
 )
 
 type GetTransactionsResponse struct {
-	Id            string    `json:"id_transaction"`
-	Destination   string    `json:"destination"`
-	Amount        int       `json:"amount"`
-	Description   string    `json:"description"`
-	CreateAt      time.Time `json:"time_of_transaction"`
-	User          user      `json:"user"`
-	Wallet        wallet    `json:"wallet"`
-	PaymentMethod paymentMethod
+	Id            string        `json:"id_transaction"`
+	Destination   string        `json:"destination_wallet_id"`
+	Amount        int           `json:"amount"`
+	Description   string        `json:"description"`
+	CreateAt      time.Time     `json:"time_of_transaction"`
+	User          user          `json:"user"`
+	Wallet        wallet        `json:"wallet"`
+	PaymentMethod paymentMethod `json:"payment_method"`
 }
 
 type paymentMethod struct {

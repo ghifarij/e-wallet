@@ -80,6 +80,80 @@ const docTemplate = `{
                 }
             }
         },
+        "/transactions/topUp": {
+            "put": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Transaction"
+                ],
+                "parameters": [
+                    {
+                        "description": "TopUp",
+                        "name": "Body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/req.TopUpRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/model.Transactions"
+                        }
+                    }
+                }
+            }
+        },
+        "/transactions/transfer": {
+            "put": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Transaction"
+                ],
+                "parameters": [
+                    {
+                        "description": "Transfer",
+                        "name": "Body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/req.TransferRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/model.Transactions"
+                        }
+                    }
+                }
+            }
+        },
         "/transactions/{userId}": {
             "get": {
                 "security": [
@@ -318,6 +392,35 @@ const docTemplate = `{
         }
     },
     "definitions": {
+        "model.Transactions": {
+            "type": "object",
+            "properties": {
+                "amount": {
+                    "type": "integer"
+                },
+                "createAt": {
+                    "type": "string"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "destination": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "paymentMethodID": {
+                    "type": "string"
+                },
+                "sourceWalletID": {
+                    "type": "string"
+                },
+                "userId": {
+                    "type": "string"
+                }
+            }
+        },
         "model.Users": {
             "type": "object",
             "properties": {
@@ -430,6 +533,53 @@ const docTemplate = `{
                 }
             }
         },
+        "req.TopUpRequest": {
+            "type": "object",
+            "required": [
+                "amount",
+                "paymentMethodId",
+                "userId",
+                "walletID"
+            ],
+            "properties": {
+                "amount": {
+                    "type": "integer",
+                    "minimum": 10000
+                },
+                "paymentMethodId": {
+                    "type": "string"
+                },
+                "userId": {
+                    "type": "string"
+                },
+                "walletID": {
+                    "type": "string"
+                }
+            }
+        },
+        "req.TransferRequest": {
+            "type": "object",
+            "properties": {
+                "amount": {
+                    "type": "integer"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "destination_wallet_id": {
+                    "type": "string"
+                },
+                "payment_method_id": {
+                    "type": "string"
+                },
+                "source_user_id": {
+                    "type": "string"
+                },
+                "source_wallet_id": {
+                    "type": "string"
+                }
+            }
+        },
         "req.UpdateAccountRequest": {
             "type": "object",
             "required": [
@@ -522,13 +672,13 @@ const docTemplate = `{
                 "description": {
                     "type": "string"
                 },
-                "destination": {
+                "destination_wallet_id": {
                     "type": "string"
                 },
                 "id_transaction": {
                     "type": "string"
                 },
-                "paymentMethod": {
+                "payment_method": {
                     "$ref": "#/definitions/resp.paymentMethod"
                 },
                 "time_of_transaction": {

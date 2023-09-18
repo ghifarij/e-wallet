@@ -1,5 +1,24 @@
 basePath: /api/v1
 definitions:
+  model.Transactions:
+    properties:
+      amount:
+        type: integer
+      createAt:
+        type: string
+      description:
+        type: string
+      destination:
+        type: string
+      id:
+        type: string
+      paymentMethodID:
+        type: string
+      sourceWalletID:
+        type: string
+      userId:
+        type: string
+    type: object
   model.Users:
     properties:
       createdAt:
@@ -77,6 +96,38 @@ definitions:
     - phoneNumber
     - userName
     type: object
+  req.TopUpRequest:
+    properties:
+      amount:
+        minimum: 10000
+        type: integer
+      paymentMethodId:
+        type: string
+      userId:
+        type: string
+      walletID:
+        type: string
+    required:
+    - amount
+    - paymentMethodId
+    - userId
+    - walletID
+    type: object
+  req.TransferRequest:
+    properties:
+      amount:
+        type: integer
+      description:
+        type: string
+      destination_wallet_id:
+        type: string
+      payment_method_id:
+        type: string
+      source_user_id:
+        type: string
+      source_wallet_id:
+        type: string
+    type: object
   req.UpdateAccountRequest:
     properties:
       email:
@@ -142,11 +193,11 @@ definitions:
         type: integer
       description:
         type: string
-      destination:
+      destination_wallet_id:
         type: string
       id_transaction:
         type: string
-      paymentMethod:
+      payment_method:
         $ref: '#/definitions/resp.paymentMethod'
       time_of_transaction:
         type: string
@@ -268,6 +319,50 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/resp.GetTransactionsResponse'
+      security:
+      - Bearer: []
+      tags:
+      - Transaction
+  /transactions/topUp:
+    put:
+      consumes:
+      - application/json
+      parameters:
+      - description: TopUp
+        in: body
+        name: Body
+        required: true
+        schema:
+          $ref: '#/definitions/req.TopUpRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.Transactions'
+      security:
+      - Bearer: []
+      tags:
+      - Transaction
+  /transactions/transfer:
+    put:
+      consumes:
+      - application/json
+      parameters:
+      - description: Transfer
+        in: body
+        name: Body
+        required: true
+        schema:
+          $ref: '#/definitions/req.TransferRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.Transactions'
       security:
       - Bearer: []
       tags:

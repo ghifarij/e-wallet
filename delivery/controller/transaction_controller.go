@@ -3,7 +3,6 @@ package controller
 import (
 	"Kelompok-2/dompet-online/delivery/middleware"
 	"Kelompok-2/dompet-online/model/dto/req"
-	"Kelompok-2/dompet-online/model/dto/resp"
 	"Kelompok-2/dompet-online/usecase"
 	"github.com/gin-gonic/gin"
 	"net/http"
@@ -49,28 +48,17 @@ func (t *TransactionController) getHistoriesTransactionsHandler(c *gin.Context) 
 		return
 	}
 
-	// Create a response object
-	var response []resp.GetTransactionsResponse
-
-	// Populate the response object with data from getHistoryTransaction
-	for _, transaction := range getHistoryTransaction {
-		transactionResponse := resp.GetTransactionsResponse{
-			Id:            transaction.Id,
-			Destination:   transaction.Destination,
-			Amount:        transaction.Amount,
-			Description:   transaction.Description,
-			CreateAt:      transaction.CreateAt,
-			User:          transaction.User,
-			Wallet:        transaction.Wallet,
-			PaymentMethod: transaction.PaymentMethod,
-		}
-
-		response = append(response, transactionResponse)
-	}
-
-	c.JSON(http.StatusOK, response)
+	c.JSON(http.StatusOK, getHistoryTransaction)
 }
 
+// TransactionController godoc
+// @Tags         Transaction
+// @Accept       json
+// @Produce      json
+// @Security	 Bearer
+// @Param        Body body req.TransferRequest  true  "Transfer"
+// @Success      200  {object}  model.Transactions
+// @Router       /transactions/transfer [put]
 func (t *TransactionController) transferTransaction(c *gin.Context) {
 	var transferRequest req.TransferRequest
 	if err := c.ShouldBindJSON(&transferRequest); err != nil {
@@ -91,6 +79,14 @@ func (t *TransactionController) transferTransaction(c *gin.Context) {
 	c.JSON(http.StatusOK, transaction)
 }
 
+// TransactionController godoc
+// @Tags         Transaction
+// @Accept       json
+// @Produce      json
+// @Security	 Bearer
+// @Param        Body body req.TopUpRequest  true  "TopUp"
+// @Success      200  {object}  model.Transactions
+// @Router       /transactions/topUp [put]
 func (t *TransactionController) topUpTransaction(c *gin.Context) {
 	var topUpRequest req.TopUpRequest
 	if err := c.ShouldBindJSON(&topUpRequest); err != nil {

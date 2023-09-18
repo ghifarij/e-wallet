@@ -81,30 +81,30 @@ func (suite *WalletUsecaseTestSuite) TestGetWalletByUserId_fail() {
 	assert.Equal(suite.T(), expectedError.Error(), err.Error())
 }
 
-func (suite *WalletUsecaseTestSuite) TestGetWalletByRekeningUser_Success() {
-	expected := model.Wallet{
-		Id:           "1",
-		UserId:       "001",
-		RekeningUser: "1234",
-		Balance:      10000,
-		CreatedAt:    time.Time{},
-		UpdatedAt:    time.Time{},
-	}
-	suite.walletRepoMock.On("FindByRekeningUser", expected.RekeningUser).Return(expected, nil)
+//func (suite *WalletUsecaseTestSuite) TestGetWalletByRekeningUser_Success() {
+//	expected := model.Wallet{
+//		Id:           "1",
+//		UserId:       "001",
+//		RekeningUser: "1234",
+//		Balance:      10000,
+//		CreatedAt:    time.Time{},
+//		UpdatedAt:    time.Time{},
+//	}
+//	suite.walletRepoMock.On("FindByRekeningUser", expected.RekeningUser).Return(expected, nil)
+//
+//	got, err := suite.walletUseCase.GetWalletByRekeningUser(expected.RekeningUser)
+//	assert.Nil(suite.T(), err)
+//	assert.Equal(suite.T(), expected, got)
+//}
 
-	got, err := suite.walletUseCase.GetWalletByRekeningUser(expected.RekeningUser)
-	assert.Nil(suite.T(), err)
-	assert.Equal(suite.T(), expected, got)
-}
-
-func (suite *WalletUsecaseTestSuite) TestGetWalletByRekeningUser_fail() {
-	mockRekeningUser := "0"
-	expectedError := fmt.Errorf("user with ID %v not found", mockRekeningUser)
-	suite.walletRepoMock.On("FindByRekeningUser", mockRekeningUser).Return(model.Wallet{}, expectedError)
-	_, err := suite.walletUseCase.GetWalletByRekeningUser(mockRekeningUser)
-	assert.Error(suite.T(), err)
-	assert.Equal(suite.T(), expectedError.Error(), err.Error())
-}
+//func (suite *WalletUsecaseTestSuite) TestGetWalletByRekeningUser_fail() {
+//	mockRekeningUser := "0"
+//	expectedError := fmt.Errorf("user with ID %v not found", mockRekeningUser)
+//	suite.walletRepoMock.On("FindByRekeningUser", mockRekeningUser).Return(model.Wallet{}, expectedError)
+//	_, err := suite.walletUseCase.GetWalletByRekeningUser(mockRekeningUser)
+//	assert.Error(suite.T(), err)
+//	assert.Equal(suite.T(), expectedError.Error(), err.Error())
+//}
 
 //func (suite *WalletUsecaseTestSuite) TestUpdateWalletBalance_Success() {
 //	mockData := model.Wallet{

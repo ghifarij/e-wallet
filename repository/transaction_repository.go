@@ -4,6 +4,7 @@ import (
 	"Kelompok-2/dompet-online/model"
 	"Kelompok-2/dompet-online/model/dto/resp"
 	"database/sql"
+	"fmt"
 )
 
 type TransactionRepository interface {
@@ -26,22 +27,24 @@ func (t *transactionRepository) FindAll(userId string) ([]resp.GetTransactionsRe
 	var getTransactionsResponses []resp.GetTransactionsResponse
 
 	query := `
-        SELECT
-            t.id,
-            t.destination,
-            t.amount,
-            t.description,
-            t.created_at,
-            u.user_name,
-            w.rekening_user,
-            w.balance,
-            p.name,
-            p.description
-        FROM transactions AS t 
-        JOIN users AS u ON t.user_id = u.id
-		JOIN wallets AS w ON t.source_wallet_id = w.id
-		JOIN payment_method AS p ON t.payment_method_id = p.id;`
-	rows, err := t.db.Query(query)
+       SELECT
+    t.id AS transaction_id,
+    t.destination,
+    t.amount,
+    t.description AS transaction_description,
+    t.created_at AS transaction_created_at,
+    u.user_name,
+    w.rekening_user,
+    w.balance,
+    pm.name AS payment_method_name,
+    pm.description AS payment_method_description
+FROM transactions t
+INNER JOIN users u ON t.user_id = u.id
+INNER JOIN wallets w ON t.source_wallet_id = w.id
+INNER JOIN payment_method pm ON t.payment_method_id = pm.id
+WHERE u.id = $1;
+`
+	rows, err := t.db.Query(query, userId)
 	if err != nil {
 		return []resp.GetTransactionsResponse{}, err
 	}
@@ -62,13 +65,13 @@ func (t *transactionRepository) FindAll(userId string) ([]resp.GetTransactionsRe
 			&getTransactionResponse.PaymentMethod.Description,
 		)
 		if err != nil {
-			return nil, err
+			return []resp.GetTransactionsResponse{}, err
 		}
 
 		getTransactionsResponses = append(getTransactionsResponses, getTransactionResponse)
 	}
-
-	// Check if no results were found and return an empty slice
+	fmt.Printf("getTransactionsResponsesRepo %v\n", getTransactionsResponses)
+	//Check if no results were found and return an empty slice
 	if len(getTransactionsResponses) == 0 {
 		return []resp.GetTransactionsResponse{}, nil
 	}

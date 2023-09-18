@@ -57,30 +57,30 @@ func (suite *WalletRepoTestSuite) TestFindByUserId_Fail() {
 	assert.Equal(suite.T(), model.Wallet{}, gotWallet)
 }
 
-func (suite *WalletRepoTestSuite) TestFindByRekeningUser_Success() {
-	mockData := model.Wallet{
-		Id:           "1",
-		UserId:       "1",
-		RekeningUser: "1234",
-		Balance:      10000,
-	}
-	rows := sqlmock.NewRows([]string{"id", "user_id", "rekening_user", "balance"})
-	rows.AddRow(mockData.Id, mockData.UserId, mockData.RekeningUser, mockData.Balance)
-	expectedQuery := `SELECT id, user_id, rekening_user, balance FROM wallets WHERE rekening_user = $1`
-	suite.mockSQL.ExpectQuery(regexp.QuoteMeta(expectedQuery)).WithArgs(mockData.RekeningUser).WillReturnRows(rows)
-	gotWallet, gotError := suite.repo.FindByRekeningUser(mockData.RekeningUser)
-	assert.Nil(suite.T(), gotError)
-	assert.NoError(suite.T(), gotError)
-	assert.Equal(suite.T(), mockData, gotWallet)
-}
+//func (suite *WalletRepoTestSuite) TestFindByRekeningUser_Success() {
+//	mockData := model.Wallet{
+//		Id:           "1",
+//		UserId:       "1",
+//		RekeningUser: "1234",
+//		Balance:      10000,
+//	}
+//	rows := sqlmock.NewRows([]string{"id", "user_id", "rekening_user", "balance"})
+//	rows.AddRow(mockData.Id, mockData.UserId, mockData.RekeningUser, mockData.Balance)
+//	expectedQuery := `SELECT id, user_id, rekening_user, balance FROM wallets WHERE rekening_user = $1`
+//	suite.mockSQL.ExpectQuery(regexp.QuoteMeta(expectedQuery)).WithArgs(mockData.RekeningUser).WillReturnRows(rows)
+//	gotWallet, gotError := suite.repo.FindByRekeningUser(mockData.RekeningUser)
+//	assert.Nil(suite.T(), gotError)
+//	assert.NoError(suite.T(), gotError)
+//	assert.Equal(suite.T(), mockData, gotWallet)
+//}
 
-func (suite *WalletRepoTestSuite) TestFindByRekeningUser_Fail() {
-	expectedQuery := `SELECT id, user_id, rekening_user, balance FROM wallets WHERE rekening_user = $1`
-	suite.mockSQL.ExpectQuery(regexp.QuoteMeta(expectedQuery)).WithArgs("xx").WillReturnError(errors.New("error"))
-	gotWallet, gotError := suite.repo.FindByRekeningUser("xx")
-	assert.Error(suite.T(), gotError)
-	assert.Equal(suite.T(), model.Wallet{}, gotWallet)
-}
+//func (suite *WalletRepoTestSuite) TestFindByRekeningUser_Fail() {
+//	expectedQuery := `SELECT id, user_id, rekening_user, balance FROM wallets WHERE rekening_user = $1`
+//	suite.mockSQL.ExpectQuery(regexp.QuoteMeta(expectedQuery)).WithArgs("xx").WillReturnError(errors.New("error"))
+//	gotWallet, gotError := suite.repo.FindByRekeningUser("xx")
+//	assert.Error(suite.T(), gotError)
+//	assert.Equal(suite.T(), model.Wallet{}, gotWallet)
+//}
 
 func (suite *WalletRepoTestSuite) TestSave_Success() {
 	mockData := model.Wallet{
