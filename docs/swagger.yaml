@@ -1,0 +1,38 @@
+definitions:
+  req.AuthLoginRequest:
+    properties:
+      email:
+        type: string
+      password:
+        type: string
+      phoneNumber:
+        type: string
+      userName:
+        type: string
+    required:
+    - password
+    type: object
+info:
+  contact: {}
+paths:
+  /auth/login:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: Auth login
+        in: body
+        name: Body
+        required: true
+        schema:
+          $ref: '#/definitions/req.AuthLoginRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/req.AuthLoginRequest'
+      tags:
+      - Auth
+swagger: "2.0"

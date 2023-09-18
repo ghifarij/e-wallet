@@ -43,6 +43,14 @@ func (a *UserController) UsersRoute() {
 }
 
 // Auth
+
+// UserController godoc
+// @Tags         Auth
+// @Accept       json
+// @Produce      json
+// @Param        Body body req.AuthLoginRequest  true  "Auth login"
+// @Success      200  {object}  req.AuthLoginRequest
+// @Router       /auth/login [post]
 func (a *UserController) loginHandler(c *gin.Context) {
 	var payload req.AuthLoginRequest
 	if err := c.ShouldBindJSON(&payload); err != nil {
