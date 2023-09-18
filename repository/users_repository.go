@@ -145,7 +145,7 @@ func (u *userRepository) FindById(id string) (model.Users, error) {
 }
 
 func (u *userRepository) FindByUsernameEmailPhoneNumber(identifier string) (model.Users, error) {
-	row := u.db.QueryRow("SELECT id, full_name, user_name, email, phone_number, password, password_confirm, created_at, updated_at, deleted_at FROM users WHERE user_name = $1 OR email = $2 OR phone_number = $3", identifier, identifier, identifier)
+	row := u.db.QueryRow("SELECT id, full_name, user_name, email, phone_number, password, password_confirm, is_active, created_at, updated_at, deleted_at FROM users WHERE user_name = $1 OR email = $2 OR phone_number = $3", identifier, identifier, identifier)
 	var user model.Users
 	err := row.Scan(
 		&user.Id,
@@ -155,6 +155,7 @@ func (u *userRepository) FindByUsernameEmailPhoneNumber(identifier string) (mode
 		&user.PhoneNumber,
 		&user.Password,
 		&user.PasswordConfirm,
+		&user.IsActive,
 		&user.CreatedAt,
 		&user.UpdatedAt,
 		&user.DeleteAt,

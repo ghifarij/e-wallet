@@ -1,6 +1,6 @@
 package resp
 
-type UpdateAccountRespone struct {
+type DisableAccountResponse struct {
 	Status  int    `json:"status"`
 	Message string `json:"message"`
 }

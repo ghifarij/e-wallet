@@ -4,11 +4,15 @@ import (
 	"Kelompok-2/dompet-online/config"
 	"Kelompok-2/dompet-online/delivery/controller"
 	"Kelompok-2/dompet-online/delivery/middleware"
+	"Kelompok-2/dompet-online/docs"
 	"Kelompok-2/dompet-online/manager"
 	"fmt"
 
 	"github.com/gin-gonic/gin"
 	"github.com/sirupsen/logrus"
+
+	swaggerfiles "github.com/swaggo/files"
+	ginSwagger "github.com/swaggo/gin-swagger"
 )
 
 type Server struct {
@@ -21,6 +25,7 @@ type Server struct {
 func (s *Server) Run() {
 	s.initMiddleware()
 	s.initControllers()
+	s.swagDocs()
 	err := s.engine.Run()
 	if err != nil {
 		panic(err)
@@ -29,6 +34,13 @@ func (s *Server) Run() {
 
 func (s *Server) initMiddleware() {
 	s.engine.Use(middleware.LogRequestMiddleware(s.log))
+}
+
+func (s *Server) swagDocs() {
+	docs.SwaggerInfo.Title = "dompet-online"
+	docs.SwaggerInfo.Version = "v1"
+	docs.SwaggerInfo.BasePath = "/api/v1"
+	s.engine.GET("/api/v1/swagger/*any", ginSwagger.WrapHandler(swaggerfiles.Handler))
 }
 
 func (s *Server) initControllers() {

@@ -1,8 +1,9 @@
 package req
 
 type AuthLoginRequest struct {
-	UserName    string
-	Email       string
-	PhoneNumber string
-	Password    string `validate:"required"`
+	LoginOption string `json:"login_option"`
+	UserName    string `json:"userName,omitempty"`
+	Email       string `json:"email,omitempty"`
+	PhoneNumber string `json:"phoneNumber,omitempty"`
+	Password    string `json:"password" validate:"required"`
 }

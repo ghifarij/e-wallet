@@ -28,28 +28,60 @@ func NewUserController(userUC usecase.UserUseCase, walletUC usecase.WalletUseCas
 func (a *UserController) AuthRoute() {
 	rg := a.engine.Group("/api/v1")
 
-	rg.POST("/auth/login", a.loginHandler)
 	rg.POST("/auth/register", a.registerHandler)
+	rg.POST("/auth/login", a.loginHandler)
 }
 
 func (a *UserController) UsersRoute() {
 	rg := a.engine.Group("/api/v1", middleware.AuthMiddleware())
 
-	rg.GET("/users/:phoneNumber", a.findByPhoneNumber)
-	rg.GET("/users", a.listHandler)
-	rg.PUT("/users/update-account", a.updateAccount)
-	rg.PATCH("/users/change-password", a.changePasswordHandler)
-	rg.PUT("/users/:userId", a.DisableUserID)
+	rg.GET("/users/:phoneNumber", a.findUserByPhoneNumberHandler)
+	rg.GET("/users", a.listsUsersHandler)
+	rg.PUT("/users", a.updateAccountHandler)
+	rg.PATCH("/users", a.updateAccountHandler)
+	rg.PUT("/users/:id", a.disableAccountHandler)
 }
 
-// Auth
+// Auth //
+
+// UserController godoc
+// @Tags         Auth
+// @Accept       json
+// @Produce      json
+// @Param        Body body req.AuthRegisterRequest  true  "Auth register"
+// @Success      201  {object}  resp.RegisterResponse
+// @Router       /auth/register [post]
+func (a *UserController) registerHandler(c *gin.Context) {
+	var payload req.AuthRegisterRequest
+	if err := c.ShouldBindJSON(&payload); err != nil {
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
+			"message": err.Error(),
+		})
+		return
+	}
+
+	err := a.userUC.Register(payload)
+	if err != nil {
+		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{
+			"message": err.Error(),
+		})
+		return
+	}
+
+	response := resp.RegisterResponse{
+		Status:  http.StatusCreated,
+		Message: "successfully register",
+	}
+
+	c.JSON(response.Status, response)
+}
 
 // UserController godoc
 // @Tags         Auth
 // @Accept       json
 // @Produce      json
 // @Param        Body body req.AuthLoginRequest  true  "Auth login"
-// @Success      200  {object}  req.AuthLoginRequest
+// @Success      200  {object}  resp.LoginResponse
 // @Router       /auth/login [post]
 func (a *UserController) loginHandler(c *gin.Context) {
 	var payload req.AuthLoginRequest
@@ -76,34 +108,17 @@ func (a *UserController) loginHandler(c *gin.Context) {
 	c.JSON(response.Status, response)
 }
 
-func (a *UserController) registerHandler(c *gin.Context) {
-	var payload req.AuthRegisterRequest
-	if err := c.ShouldBindJSON(&payload); err != nil {
-		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
-			"message": err.Error(),
-		})
-		return
-	}
+// Admin //
 
-	err := a.userUC.Register(payload)
-	if err != nil {
-		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{
-			"message": err.Error(),
-		})
-		return
-	}
-
-	response := resp.RegisterResponse{
-		Status:  http.StatusCreated,
-		Message: "successfully register",
-	}
-
-	c.JSON(response.Status, response)
-}
-
-// Users
-func (a *UserController) listHandler(c *gin.Context) {
-	users, err := a.userUC.ListsHandler()
+// UserController godoc
+// @Tags         Admin
+// @Accept       json
+// @Produce      json
+// @Security	 Bearer
+// @Success      200  {object}  model.Users
+// @Router       /users [get]
+func (a *UserController) listsUsersHandler(c *gin.Context) {
+	users, err := a.userUC.ListsUsersHandler()
 	if err != nil {
 		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{
 			"message": err.Error(),
@@ -113,9 +128,17 @@ func (a *UserController) listHandler(c *gin.Context) {
 	c.JSON(http.StatusOK, users)
 }
 
-func (a *UserController) findByPhoneNumber(c *gin.Context) {
+// UserController godoc
+// @Tags         Admin
+// @Accept       json
+// @Produce      json
+// @Security	 Bearer
+// @Param		 phoneNumber path string true "User PhoneNumber"
+// @Success      200  {object}  model.Users
+// @Router       /users/{phoneNumber} [get]
+func (a *UserController) findUserByPhoneNumberHandler(c *gin.Context) {
 	phoneNumber := c.Param("phoneNumber")
-	user, err := a.userUC.FindByPhoneNumber(phoneNumber)
+	user, err := a.userUC.FindByUserByPhoneNumber(phoneNumber)
 
 	if err != nil {
 		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
@@ -127,7 +150,17 @@ func (a *UserController) findByPhoneNumber(c *gin.Context) {
 	c.JSON(http.StatusOK, user)
 }
 
-func (a *UserController) updateAccount(c *gin.Context) {
+// user //
+
+// UserController godoc
+// @Tags         User
+// @Accept       json
+// @Produce      json
+// @Security	 Bearer
+// @Param        Body body req.UpdateAccountRequest  true  "Update Personal Information"
+// @Success      200  {object}  resp.UpdateAccountRespone
+// @Router       /users [put]
+func (a *UserController) updateAccountHandler(c *gin.Context) {
 	var payload req.UpdateAccountRequest
 	if err := c.ShouldBindJSON(&payload); err != nil {
 		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
@@ -144,7 +177,7 @@ func (a *UserController) updateAccount(c *gin.Context) {
 		return
 	}
 
-	response := resp.UpdateUserNameRespone{
+	response := resp.UpdateAccountRespone{
 		Status:  http.StatusOK,
 		Message: "successfully Update account",
 	}
@@ -152,7 +185,15 @@ func (a *UserController) updateAccount(c *gin.Context) {
 	c.JSON(response.Status, response)
 }
 
-func (a *UserController) changePasswordHandler(c *gin.Context) {
+// UserController godoc
+// @Tags         User
+// @Accept       json
+// @Produce      json
+// @Security	 Bearer
+// @Param        Body body req.UpdatePasswordRequest  true  "Change Password"
+// @Success      200  {object}  resp.UpdatePasswordResponse
+// @Router       /users [patch]
+func (a *UserController) changePasswordAccountHandler(c *gin.Context) {
 	var payload req.UpdatePasswordRequest
 	if err := c.ShouldBindJSON(&payload); err != nil {
 		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
@@ -161,7 +202,7 @@ func (a *UserController) changePasswordHandler(c *gin.Context) {
 		return
 	}
 
-	err := a.userUC.ChangePassword(payload)
+	err := a.userUC.ChangePasswordAccount(payload)
 	if err != nil {
 		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{
 			"message": err.Error(),
@@ -177,9 +218,17 @@ func (a *UserController) changePasswordHandler(c *gin.Context) {
 	c.JSON(response.Status, response)
 }
 
-func (a *UserController) DisableUserID(c *gin.Context) {
-	DisabeleUserId := c.Param("userId")
-	_, err := a.userUC.DisableUserId(DisabeleUserId)
+// UserController godoc
+// @Tags         User
+// @Accept       json
+// @Produce      json
+// @Security	 Bearer
+// @Param		 id path string true "Disable Account"
+// @Success      200  {object}  resp.DisableAccountResponse
+// @Router       /users/{id} [put]
+func (a *UserController) disableAccountHandler(c *gin.Context) {
+	UserId := c.Param("id")
+	_, err := a.userUC.DisableAccount(UserId)
 
 	if err != nil {
 		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
@@ -187,5 +236,11 @@ func (a *UserController) DisableUserID(c *gin.Context) {
 		})
 		return
 	}
-	c.JSON(http.StatusOK, gin.H{"message": "successfully disable account"})
+
+	response := resp.DisableAccountResponse{
+		Status:  http.StatusOK,
+		Message: "successfully disable account",
+	}
+
+	c.JSON(response.Status, response)
 }

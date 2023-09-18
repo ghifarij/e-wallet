@@ -1,7 +1,35 @@
+basePath: /api/v1
 definitions:
+  model.Users:
+    properties:
+      createdAt:
+        type: string
+      deleteAt:
+        type: string
+      email:
+        type: string
+      fullName:
+        type: string
+      id:
+        type: string
+      isActive:
+        type: boolean
+      password:
+        type: string
+      passwordConfirm:
+        type: string
+      phoneNumber:
+        type: string
+      updatedAt:
+        type: string
+      userName:
+        type: string
+    type: object
   req.AuthLoginRequest:
     properties:
       email:
+        type: string
+      login_option:
         type: string
       password:
         type: string
@@ -12,8 +40,120 @@ definitions:
     required:
     - password
     type: object
+  req.AuthRegisterRequest:
+    properties:
+      email:
+        type: string
+      fullName:
+        maxLength: 50
+        minLength: 3
+        type: string
+      password:
+        type: string
+      passwordConfirm:
+        type: string
+      phoneNumber:
+        maxLength: 15
+        minLength: 10
+        type: string
+      userName:
+        maxLength: 30
+        minLength: 3
+        type: string
+    required:
+    - email
+    - fullName
+    - password
+    - passwordConfirm
+    - phoneNumber
+    - userName
+    type: object
+  req.UpdateAccountRequest:
+    properties:
+      email:
+        type: string
+      fullName:
+        maxLength: 50
+        minLength: 3
+        type: string
+      id:
+        type: string
+      phoneNumber:
+        maxLength: 15
+        minLength: 10
+        type: string
+      username:
+        maxLength: 30
+        minLength: 3
+        type: string
+    required:
+    - email
+    - fullName
+    - id
+    - phoneNumber
+    - username
+    type: object
+  req.UpdatePasswordRequest:
+    properties:
+      currentPassword:
+        type: string
+      newPassword:
+        type: string
+      newPasswordConfirm:
+        type: string
+      userName:
+        maxLength: 50
+        minLength: 3
+        type: string
+    required:
+    - currentPassword
+    - newPassword
+    - newPasswordConfirm
+    - userName
+    type: object
+  resp.DisableAccountResponse:
+    properties:
+      message:
+        type: string
+      status:
+        type: integer
+    type: object
+  resp.LoginResponse:
+    properties:
+      message:
+        type: string
+      status:
+        type: integer
+      token:
+        type: string
+      user_name:
+        type: string
+    type: object
+  resp.RegisterResponse:
+    properties:
+      message:
+        type: string
+      status:
+        type: integer
+    type: object
+  resp.UpdateAccountRespone:
+    properties:
+      message:
+        type: string
+      status:
+        type: integer
+    type: object
+  resp.UpdatePasswordResponse:
+    properties:
+      message:
+        type: string
+      status:
+        type: integer
+    type: object
 info:
   contact: {}
+  title: dompet-online
+  version: "1.0"
 paths:
   /auth/login:
     post:
@@ -32,7 +172,133 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/req.AuthLoginRequest'
+            $ref: '#/definitions/resp.LoginResponse'
       tags:
       - Auth
+  /auth/register:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: Auth register
+        in: body
+        name: Body
+        required: true
+        schema:
+          $ref: '#/definitions/req.AuthRegisterRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/resp.RegisterResponse'
+      tags:
+      - Auth
+  /users:
+    get:
+      consumes:
+      - application/json
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.Users'
+      security:
+      - Bearer: []
+      tags:
+      - Admin
+    patch:
+      consumes:
+      - application/json
+      parameters:
+      - description: Change Password
+        in: body
+        name: Body
+        required: true
+        schema:
+          $ref: '#/definitions/req.UpdatePasswordRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/resp.UpdatePasswordResponse'
+      security:
+      - Bearer: []
+      tags:
+      - User
+    put:
+      consumes:
+      - application/json
+      parameters:
+      - description: Update Personal Information
+        in: body
+        name: Body
+        required: true
+        schema:
+          $ref: '#/definitions/req.UpdateAccountRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/resp.UpdateAccountRespone'
+      security:
+      - Bearer: []
+      tags:
+      - User
+  /users/{id}:
+    put:
+      consumes:
+      - application/json
+      parameters:
+      - description: Disable Account
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/resp.DisableAccountResponse'
+      security:
+      - Bearer: []
+      tags:
+      - User
+  /users/{phoneNumber}:
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - description: User PhoneNumber
+        in: path
+        name: phoneNumber
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.Users'
+      security:
+      - Bearer: []
+      tags:
+      - Admin
+schemes:
+- http
+securityDefinitions:
+  Bearer:
+    in: header
+    name: Authorization
+    type: apiKey
 swagger: "2.0"

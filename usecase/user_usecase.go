@@ -17,11 +17,11 @@ type UserUseCase interface {
 	Login(payload req.AuthLoginRequest) (resp.LoginResponse, error)
 	Register(payload req.AuthRegisterRequest) error
 	// Users
-	FindByPhoneNumber(phoneNumber string) (model.Users, error)
-	ListsHandler() ([]model.Users, error)
+	FindByUserByPhoneNumber(phoneNumber string) (model.Users, error)
+	ListsUsersHandler() ([]model.Users, error)
 	UpdateAccount(payload req.UpdateAccountRequest) error
-	ChangePassword(payload req.UpdatePasswordRequest) error
-	DisableUserId(id string) (model.Users, error)
+	ChangePasswordAccount(payload req.UpdatePasswordRequest) error
+	DisableAccount(id string) (model.Users, error)
 	// Helper
 	FindByUserName(username string) (model.Users, error)
 	FindById(Id string) (model.Users, error)
@@ -65,7 +65,7 @@ func (u *userUseCase) FindByUserName(username string) (model.Users, error) {
 }
 
 // FindAll implements UserUseCase.
-func (u *userUseCase) ListsHandler() ([]model.Users, error) {
+func (u *userUseCase) ListsUsersHandler() ([]model.Users, error) {
 	users, err := u.repo.FindAll()
 	if err != nil {
 		return nil, fmt.Errorf("failed to get all data: %v", err)
@@ -126,7 +126,7 @@ func (u *userUseCase) Register(payload req.AuthRegisterRequest) error {
 }
 
 // FindByPhoneNumber UserUseCase
-func (u *userUseCase) FindByPhoneNumber(phoneNumber string) (model.Users, error) {
+func (u *userUseCase) FindByUserByPhoneNumber(phoneNumber string) (model.Users, error) {
 	byPhoneNumber, err := u.repo.FindByPhoneNumber(phoneNumber)
 	if err != nil {
 		return model.Users{}, err
@@ -145,14 +145,15 @@ func (u *userUseCase) Login(payload req.AuthLoginRequest) (resp.LoginResponse, e
 
 	var user model.Users
 
-	// Determine which identifier is provided and use the appropriate method to find the user
-	if payload.UserName != "" {
-		user, err = u.FindByUsernameEmailPhoneNumber(payload.UserName)
-	} else if payload.Email != "" {
+	// Determine which identifier is provided based on the LoginOption field
+	switch payload.LoginOption {
+	case "email":
 		user, err = u.FindByUsernameEmailPhoneNumber(payload.Email)
-	} else if payload.PhoneNumber != "" {
+	case "phoneNumber":
 		user, err = u.FindByUsernameEmailPhoneNumber(payload.PhoneNumber)
-	} else {
+	case "userName":
+		user, err = u.FindByUsernameEmailPhoneNumber(payload.UserName)
+	default:
 		return resp.LoginResponse{}, fmt.Errorf("invalid login request: no identifier provided")
 	}
 
@@ -164,6 +165,11 @@ func (u *userUseCase) Login(payload req.AuthLoginRequest) (resp.LoginResponse, e
 	err = security.VerifyPassword(user.Password, payload.Password)
 	if err != nil {
 		return resp.LoginResponse{}, fmt.Errorf("unauthorized: invalid credential")
+	}
+
+	// Validasi disable or not
+	if user.IsActive == false {
+		return resp.LoginResponse{}, fmt.Errorf("your account is disable")
 	}
 
 	// Generate Token
@@ -179,7 +185,7 @@ func (u *userUseCase) Login(payload req.AuthLoginRequest) (resp.LoginResponse, e
 }
 
 // ChangePassword implements UserUseCase.
-func (u *userUseCase) ChangePassword(payload req.UpdatePasswordRequest) error {
+func (u *userUseCase) ChangePasswordAccount(payload req.UpdatePasswordRequest) error {
 	validate := validator.New()
 	err := validate.Struct(payload)
 	if err != nil {
@@ -221,7 +227,7 @@ func (u *userUseCase) FindByUsernameEmailPhoneNumber(identifier string) (model.U
 	return user, nil
 }
 
-func (u *userUseCase) DisableUserId(id string) (model.Users, error) {
+func (u *userUseCase) DisableAccount(id string) (model.Users, error) {
 	user, err := u.repo.FindById(id)
 	if err != nil {
 		return model.Users{}, err
