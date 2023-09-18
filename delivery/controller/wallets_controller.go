@@ -22,27 +22,21 @@ func NewWalletController(walletUC usecase.WalletUseCase, engine *gin.Engine) *Wa
 func (w *WalletController) Route() {
 	rg := w.engine.Group("/api/v1", middleware.AuthMiddleware())
 
-	rg.GET("/wallets/:userId", w.getWalletByUserId)
-	rg.GET("/wallet/:number", w.getWalletByRekeningUser)
+	rg.GET("/wallets/:userId", w.getWalletByUserIdHandler)
 }
 
-func (w *WalletController) getWalletByUserId(c *gin.Context) {
+// WalletController godoc
+// @Tags         Wallet
+// @Accept       json
+// @Produce      json
+// @Security	 Bearer
+// @Param		 userId path string true "Get Wallet"
+// @Success      200  {object}  model.Wallet
+// @Router       /wallets/{userId} [get]
+func (w *WalletController) getWalletByUserIdHandler(c *gin.Context) {
 	userId := c.Param("userId")
 
 	wallet, err := w.walletUC.GetWalletByUserId(userId)
-	if err != nil {
-		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
-			"message": err.Error(),
-		})
-		return
-	}
-	c.JSON(http.StatusOK, wallet)
-}
-
-func (w *WalletController) getWalletByRekeningUser(c *gin.Context) {
-	rekeningUserNumber := c.Param(":number")
-
-	wallet, err := w.walletUC.GetWalletByRekeningUser(rekeningUserNumber)
 	if err != nil {
 		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
 			"message": err.Error(),

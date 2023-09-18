@@ -114,6 +114,7 @@ func (u *userUseCase) Register(payload req.AuthRegisterRequest) error {
 		UserId:       user.Id,
 		RekeningUser: common.GenerateRandomRekeningNumber(10),
 		Balance:      0,
+		CreatedAt:    time.Now(),
 	}
 
 	// Panggil use case wallet untuk menyimpan wallet

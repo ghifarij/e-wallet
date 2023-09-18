@@ -4,7 +4,7 @@ definitions:
     properties:
       createdAt:
         type: string
-      deleteAt:
+      disableAt:
         type: string
       email:
         type: string
@@ -23,6 +23,21 @@ definitions:
       updatedAt:
         type: string
       userName:
+        type: string
+    type: object
+  model.Wallet:
+    properties:
+      balance:
+        type: integer
+      createdAt:
+        type: string
+      id:
+        type: string
+      rekeningUser:
+        type: string
+      updatedAt:
+        type: string
+      userId:
         type: string
     type: object
   req.AuthLoginRequest:
@@ -297,6 +312,27 @@ paths:
       - Bearer: []
       tags:
       - Admin
+  /wallets/{userId}:
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - description: Get Wallet
+        in: path
+        name: userId
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.Wallet'
+      security:
+      - Bearer: []
+      tags:
+      - Wallet
 schemes:
 - http
 securityDefinitions:

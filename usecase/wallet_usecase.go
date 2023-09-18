@@ -7,7 +7,6 @@ import (
 
 type WalletUseCase interface {
 	GetWalletByUserId(userId string) (model.Wallet, error)
-	GetWalletByRekeningUser(number string) (model.Wallet, error)
 	CreateWallet(payload model.Wallet) error
 	UpdateWalletBalance(walletID string, amount int) error
 }
@@ -24,14 +23,6 @@ func NewWalletUseCase(repo repository.WalletRepository) WalletUseCase {
 
 func (w *walletUseCase) GetWalletByUserId(userId string) (model.Wallet, error) {
 	wallet, err := w.repo.FindByUserId(userId)
-	if err != nil {
-		return model.Wallet{}, err
-	}
-	return wallet, nil
-}
-
-func (w *walletUseCase) GetWalletByRekeningUser(number string) (model.Wallet, error) {
-	wallet, err := w.repo.FindByRekeningUser(number)
 	if err != nil {
 		return model.Wallet{}, err
 	}

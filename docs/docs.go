@@ -245,6 +245,41 @@ const docTemplate = `{
                     }
                 }
             }
+        },
+        "/wallets/{userId}": {
+            "get": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Wallet"
+                ],
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Get Wallet",
+                        "name": "userId",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/model.Wallet"
+                        }
+                    }
+                }
+            }
         }
     },
     "definitions": {
@@ -254,7 +289,7 @@ const docTemplate = `{
                 "createdAt": {
                     "type": "string"
                 },
-                "deleteAt": {
+                "disableAt": {
                     "type": "string"
                 },
                 "email": {
@@ -282,6 +317,29 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "userName": {
+                    "type": "string"
+                }
+            }
+        },
+        "model.Wallet": {
+            "type": "object",
+            "properties": {
+                "balance": {
+                    "type": "integer"
+                },
+                "createdAt": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "rekeningUser": {
+                    "type": "string"
+                },
+                "updatedAt": {
+                    "type": "string"
+                },
+                "userId": {
                     "type": "string"
                 }
             }
