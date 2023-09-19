@@ -98,20 +98,20 @@ definitions:
     type: object
   req.TopUpRequest:
     properties:
-      amount:
-        minimum: 10000
-        type: integer
       paymentMethodId:
         type: string
-      userId:
+      topUp_amount:
+        minimum: 10000
+        type: integer
+      your_userId:
         type: string
-      walletID:
+      your_wallet_id:
         type: string
     required:
-    - amount
     - paymentMethodId
-    - userId
-    - walletID
+    - topUp_amount
+    - your_userId
+    - your_wallet_id
     type: object
   req.TransferRequest:
     properties:

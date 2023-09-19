@@ -1,8 +1,8 @@
 package req
 
 type TopUpRequest struct {
-	UserId          string `validate:"required"`
-	WalletID        string `validate:"required"`
-	Amount          int    `validate:"required,min=10000"`
+	UserId          string `json:"your_userId" validate:"required"`
+	WalletID        string `json:"your_wallet_id" validate:"required"`
+	Amount          int    `json:"topUp_amount" validate:"required,min=10000"`
 	PaymentMethodId string `validate:"required"`
 }

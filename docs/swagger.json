@@ -562,23 +562,23 @@
         "req.TopUpRequest": {
             "type": "object",
             "required": [
-                "amount",
                 "paymentMethodId",
-                "userId",
-                "walletID"
+                "topUp_amount",
+                "your_userId",
+                "your_wallet_id"
             ],
             "properties": {
-                "amount": {
-                    "type": "integer",
-                    "minimum": 10000
-                },
                 "paymentMethodId": {
                     "type": "string"
                 },
-                "userId": {
+                "topUp_amount": {
+                    "type": "integer",
+                    "minimum": 10000
+                },
+                "your_userId": {
                     "type": "string"
                 },
-                "walletID": {
+                "your_wallet_id": {
                     "type": "string"
                 }
             }
