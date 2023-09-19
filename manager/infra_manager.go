@@ -4,6 +4,7 @@ import (
 	"Kelompok-2/dompet-online/config"
 	"database/sql"
 	"fmt"
+	_ "github.com/lib/pq"
 )
 
 type InfraManager interface {

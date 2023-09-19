@@ -6,6 +6,7 @@ import (
 	"Kelompok-2/dompet-online/model/dto/resp"
 	"Kelompok-2/dompet-online/usecase"
 	"net/http"
+	"time"
 
 	"github.com/gin-gonic/gin"
 )
@@ -228,7 +229,7 @@ func (a *UserController) changePasswordAccountHandler(c *gin.Context) {
 // @Router       /users/{id} [put]
 func (a *UserController) disableAccountHandler(c *gin.Context) {
 	UserId := c.Param("id")
-	_, err := a.userUC.DisableAccount(UserId)
+	_, err := a.userUC.DisableAccount(UserId, time.Now())
 
 	if err != nil {
 		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
