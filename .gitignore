@@ -2,4 +2,5 @@
 .env
 .logger.log
 note.txt
+cover.out
 dompet-online.sql
