@@ -21,14 +21,6 @@ func (w *WalletUseCaseMock) GetWalletByUserId(userId string) (model.Wallet, erro
 	return args.Get(0).(model.Wallet), nil
 }
 
-func (w *WalletUseCaseMock) GetWalletByRekeningUser(number string) (model.Wallet, error) {
-	args := w.Called(number)
-	if args.Get(1) != nil {
-		return model.Wallet{}, args.Error(1)
-	}
-	return args.Get(0).(model.Wallet), nil
-}
-
 func (w *WalletUseCaseMock) CreateWallet(payload model.Wallet) error {
 	args := w.Called(payload)
 	if args.Get(0) != nil {

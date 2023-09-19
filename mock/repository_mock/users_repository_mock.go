@@ -4,6 +4,7 @@ import (
 	"Kelompok-2/dompet-online/model"
 	"Kelompok-2/dompet-online/model/dto/req"
 	"github.com/stretchr/testify/mock"
+	"time"
 )
 
 type UserRepositoryMock struct {
@@ -16,6 +17,30 @@ func (u *UserRepositoryMock) Save(user model.Users) error {
 
 func (u *UserRepositoryMock) FindByUserName(username string) (model.Users, error) {
 	args := u.Called(username)
+	if args.Get(1) != nil {
+		return model.Users{}, args.Error(1)
+	}
+	return args.Get(0).(model.Users), nil
+}
+
+func (u *UserRepositoryMock) FindById(id string) (model.Users, error) {
+	args := u.Called(id)
+	if args.Get(1) != nil {
+		return model.Users{}, args.Error(1)
+	}
+	return args.Get(0).(model.Users), nil
+}
+
+func (u *UserRepositoryMock) FindByPhoneNumber(phoneNumber string) (model.Users, error) {
+	args := u.Called(phoneNumber)
+	if args.Get(1) != nil {
+		return model.Users{}, args.Error(1)
+	}
+	return args.Get(0).(model.Users), nil
+}
+
+func (u *UserRepositoryMock) FindByUsernameEmailPhoneNumber(identifier string) (model.Users, error) {
+	args := u.Called(identifier)
 	if args.Get(1) != nil {
 		return model.Users{}, args.Error(1)
 	}
@@ -38,36 +63,8 @@ func (u *UserRepositoryMock) FindAll() ([]model.Users, error) {
 	return args.Get(0).([]model.Users), nil
 }
 
-func (u *UserRepositoryMock) DeleteById(id string) error {
-	return u.Called(id).Error(0)
-}
-
-func (u *UserRepositoryMock) FindByPhoneNumber(phoneNumber string) (model.Users, error) {
-	args := u.Called(phoneNumber)
-	if args.Get(1) != nil {
-		return model.Users{}, args.Error(1)
-	}
-	return args.Get(0).(model.Users), nil
-}
-
-func (u *UserRepositoryMock) FindById(id string) (model.Users, error) {
-	args := u.Called(id)
-	if args.Get(1) != nil {
-		return model.Users{}, args.Error(1)
-	}
-	return args.Get(0).(model.Users), nil
-}
-
-func (u *UserRepositoryMock) FindByUsernameEmailPhoneNumber(identifier string) (model.Users, error) {
-	args := u.Called(identifier)
-	if args.Get(1) != nil {
-		return model.Users{}, args.Error(1)
-	}
-	return args.Get(0).(model.Users), nil
-}
-
-func (u *UserRepositoryMock) DisableUserId(id string) (model.Users, error) {
-	args := u.Called(id)
+func (u *UserRepositoryMock) DisableUserId(id string, disableTime time.Time) (model.Users, error) {
+	args := u.Called(id, disableTime)
 	if args.Get(1) != nil {
 		return model.Users{}, args.Error(1)
 	}

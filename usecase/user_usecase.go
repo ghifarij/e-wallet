@@ -21,7 +21,7 @@ type UserUseCase interface {
 	ListsUsersHandler() ([]model.Users, error)
 	UpdateAccount(payload req.UpdateAccountRequest) error
 	ChangePasswordAccount(payload req.UpdatePasswordRequest) error
-	DisableAccount(id string) (model.Users, error)
+	DisableAccount(id string, disableTime time.Time) (model.Users, error)
 	// Helper
 	FindByUserName(username string) (model.Users, error)
 	FindById(Id string) (model.Users, error)
@@ -217,13 +217,13 @@ func (u *userUseCase) ChangePasswordAccount(payload req.UpdatePasswordRequest) e
 }
 
 // DisableAccount implements UserUseCase.
-func (u *userUseCase) DisableAccount(id string) (model.Users, error) {
+func (u *userUseCase) DisableAccount(id string, disableTime time.Time) (model.Users, error) {
 	user, err := u.repo.FindById(id)
 	if err != nil {
 		return model.Users{}, err
 	}
 
-	disableTime := time.Now()
+	disableTime = time.Now()
 
 	// Update disable_at dalam struktur user
 	user.DisableAt = disableTime

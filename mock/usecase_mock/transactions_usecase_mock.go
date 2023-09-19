@@ -11,7 +11,7 @@ type TransactionUseCaseMock struct {
 	mock.Mock
 }
 
-func (t *TransactionUseCaseMock) GetHistoryTransactions(userId string) ([]resp.GetTransactionsResponse, error) {
+func (t *TransactionUseCaseMock) GetHistoriesTransactions(userId string) ([]resp.GetTransactionsResponse, error) {
 	args := t.Called(userId)
 	if args.Get(1) != nil {
 		return nil, args.Error(1)

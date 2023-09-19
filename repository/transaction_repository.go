@@ -46,7 +46,7 @@ WHERE u.id = $1;
 `
 	rows, err := t.db.Query(query, userId)
 	if err != nil {
-		return []resp.GetTransactionsResponse{}, err
+		return nil, err
 	}
 
 	for rows.Next() {
@@ -65,7 +65,7 @@ WHERE u.id = $1;
 			&getTransactionResponse.PaymentMethod.Description,
 		)
 		if err != nil {
-			return []resp.GetTransactionsResponse{}, err
+			return nil, err
 		}
 
 		getTransactionsResponses = append(getTransactionsResponses, getTransactionResponse)

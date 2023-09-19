@@ -37,14 +37,16 @@ func (suite *WalletRepoTestSuite) TestFindByUserId_Success() {
 		UserId:       "1",
 		RekeningUser: "1234",
 		Balance:      10000,
+		CreatedAt:    time.Time{},
+		UpdatedAt:    time.Time{},
 	}
-	rows := sqlmock.NewRows([]string{"id", "user_id", "rekening_user", "balance"})
-	rows.AddRow(mockData.Id, mockData.UserId, mockData.RekeningUser, mockData.Balance)
+	rows := sqlmock.NewRows([]string{"id", "user_id", "rekening_user", "balance", "created_at", "updated_at"})
+	rows.AddRow(mockData.Id, mockData.UserId, mockData.RekeningUser, mockData.Balance, mockData.CreatedAt, mockData.UpdatedAt)
 
-	expectedQuery := "SELECT id, user_id, rekening_user, balance FROM wallets WHERE user_id = $1"
-	suite.mockSQL.ExpectQuery(regexp.QuoteMeta(expectedQuery)).WithArgs(mockData.UserId).WillReturnRows(rows)
-	gotWallet, gotError := suite.repo.FindByUserId(mockData.Id)
-	assert.Nil(suite.T(), gotError)
+	expectedQuery := "SELECT id, user_id, rekening_user, balance, created_at, updated_at FROM wallets WHERE user_id = $1"
+	suite.mockSQL.ExpectQuery(expectedQuery).WithArgs(mockData.UserId).WillReturnRows(rows)
+
+	gotWallet, gotError := suite.repo.FindByUserId(mockData.UserId)
 	assert.NoError(suite.T(), gotError)
 	assert.Equal(suite.T(), mockData, gotWallet)
 }
@@ -56,31 +58,6 @@ func (suite *WalletRepoTestSuite) TestFindByUserId_Fail() {
 	assert.Error(suite.T(), gotError)
 	assert.Equal(suite.T(), model.Wallet{}, gotWallet)
 }
-
-//func (suite *WalletRepoTestSuite) TestFindByRekeningUser_Success() {
-//	mockData := model.Wallet{
-//		Id:           "1",
-//		UserId:       "1",
-//		RekeningUser: "1234",
-//		Balance:      10000,
-//	}
-//	rows := sqlmock.NewRows([]string{"id", "user_id", "rekening_user", "balance"})
-//	rows.AddRow(mockData.Id, mockData.UserId, mockData.RekeningUser, mockData.Balance)
-//	expectedQuery := `SELECT id, user_id, rekening_user, balance FROM wallets WHERE rekening_user = $1`
-//	suite.mockSQL.ExpectQuery(regexp.QuoteMeta(expectedQuery)).WithArgs(mockData.RekeningUser).WillReturnRows(rows)
-//	gotWallet, gotError := suite.repo.FindByRekeningUser(mockData.RekeningUser)
-//	assert.Nil(suite.T(), gotError)
-//	assert.NoError(suite.T(), gotError)
-//	assert.Equal(suite.T(), mockData, gotWallet)
-//}
-
-//func (suite *WalletRepoTestSuite) TestFindByRekeningUser_Fail() {
-//	expectedQuery := `SELECT id, user_id, rekening_user, balance FROM wallets WHERE rekening_user = $1`
-//	suite.mockSQL.ExpectQuery(regexp.QuoteMeta(expectedQuery)).WithArgs("xx").WillReturnError(errors.New("error"))
-//	gotWallet, gotError := suite.repo.FindByRekeningUser("xx")
-//	assert.Error(suite.T(), gotError)
-//	assert.Equal(suite.T(), model.Wallet{}, gotWallet)
-//}
 
 func (suite *WalletRepoTestSuite) TestSave_Success() {
 	mockData := model.Wallet{
@@ -128,18 +105,35 @@ func (suite *WalletRepoTestSuite) TestSave_fail() {
 	assert.Error(suite.T(), got)
 }
 
-//func (suite *WalletRepoTestSuite) TestUpdateWalletBalance_success() {
-//	mockData := model.Wallet{
-//		Id:      "1",
-//		Balance: 0,
-//	}
-//	expectQuery := `UPDATE wallets
-//        SET balance = balance + $1
-//        WHERE id = $2`
-//	suite.mockSQL.ExpectExec(expectQuery).WithArgs(
-//		mockData.Id,
-//		mockData.Balance).WillReturnResult(sqlmock.NewResult(1, 1))
-//	got := suite.repo.UpdateWalletBalance(mockData.Id, mockData.Balance)
-//	assert.Nil(suite.T(), got)
-//	assert.NoError(suite.T(), got)
-//}
+func (suite *WalletRepoTestSuite) TestUpdateWalletBalance_success() {
+	mockData := model.Wallet{
+		Id:      "1",
+		Balance: 0,
+	}
+	expectQuery := `UPDATE wallets
+       SET balance = balance + $1
+       WHERE id = $2`
+	suite.mockSQL.ExpectExec(expectQuery).WithArgs(
+		mockData.Id,
+		mockData.Balance).WillReturnResult(sqlmock.NewResult(1, 1))
+	got := suite.repo.UpdateWalletBalance(mockData.Id, mockData.Balance)
+	assert.Nil(suite.T(), got)
+	assert.NoError(suite.T(), got)
+}
+
+func (suite *WalletRepoTestSuite) TestUpdateWalletBalance_Success() {
+	mockData := model.Wallet{
+		Id:      "1",
+		Balance: 100, // Positive balance to add
+	}
+	expectQuery := `UPDATE wallets
+       SET balance = balance + $1
+       WHERE id = $2`
+	suite.mockSQL.ExpectExec(expectQuery).WithArgs(
+		mockData.Balance, // Balance should come first
+		mockData.Id,
+	).WillReturnResult(sqlmock.NewResult(1, 1))
+
+	got := suite.repo.UpdateWalletBalance(mockData.Id, mockData.Balance)
+	assert.NoError(suite.T(), got)
+}
