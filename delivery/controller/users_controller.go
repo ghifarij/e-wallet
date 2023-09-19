@@ -38,7 +38,7 @@ func (a *UserController) UsersRoute() {
 	rg.GET("/users/:phoneNumber", a.findUserByPhoneNumberHandler)
 	rg.GET("/users", a.listsUsersHandler)
 	rg.PUT("/users", a.updateAccountHandler)
-	rg.PATCH("/users", a.updateAccountHandler)
+	rg.PATCH("/users", a.changePasswordAccountHandler)
 	rg.PUT("/users/:id", a.disableAccountHandler)
 }
 

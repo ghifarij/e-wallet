@@ -13,7 +13,7 @@ type UserRepository interface {
 	FindById(id string) (model.Users, error)
 	FindByPhoneNumber(phoneNumber string) (model.Users, error)
 	FindByUsernameEmailPhoneNumber(identifier string) (model.Users, error)
-	UpdatePassword(username string, newPassword string, newPasswordConfirm string) error
+	UpdatePassword(identifier string, newPassword string, newPasswordConfirm string) error
 	UpdateAccount(payload req.UpdateAccountRequest) error
 	FindAll() ([]model.Users, error)
 	DisableUserId(id string, disableTime time.Time) (model.Users, error)
